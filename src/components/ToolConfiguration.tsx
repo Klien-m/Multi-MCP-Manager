@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
-import { 
-  CheckCircle, 
-  XCircle, 
-  AlertTriangle, 
-  Plus, 
-  Trash2, 
-  Save, 
+import {
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  Plus,
+  Trash2,
+  Save,
   RefreshCw,
   Folder,
   Settings
 } from 'lucide-react';
+import { useT } from '../i18n';
 import { ToolConfig, ValidationResult } from '../types';
 import { ToolConfigManager } from '../services/toolConfigManager';
 import { CustomDirectoryService } from '../services/customDirectoryService';
@@ -23,6 +24,7 @@ interface ToolConfigurationProps {
 }
 
 export const ToolConfiguration: React.FC<ToolConfigurationProps> = ({ onConfigChange }) => {
+  const t = useT();
   const [tools, setTools] = useState<ToolConfig[]>([]);
   const [customDirectories, setCustomDirectories] = useState<{ [toolName: string]: string[] }>({});
   const [validationResults, setValidationResults] = useState<{ [toolName: string]: ValidationResult }>({});
@@ -227,7 +229,7 @@ export const ToolConfiguration: React.FC<ToolConfigurationProps> = ({ onConfigCh
     <div className="space-y-6 p-6">
       {/* 顶部操作栏 */}
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">AI工具配置管理</h1>
+        <h1 className="text-2xl font-bold">{t('toolConfig.title')}</h1>
         <div className="flex space-x-2">
           <Button onClick={scanCustomDirectories}>
             <RefreshCw className={`h-4 w-4 mr-2 ${isScanning ? 'animate-spin' : ''}`} />
@@ -235,7 +237,7 @@ export const ToolConfiguration: React.FC<ToolConfigurationProps> = ({ onConfigCh
           </Button>
           <Button onClick={saveConfiguration}>
             <Save className="h-4 w-4 mr-2" />
-            保存配置
+            {t('toolConfig.saveConfig')}
           </Button>
         </div>
       </div>
@@ -265,7 +267,7 @@ export const ToolConfiguration: React.FC<ToolConfigurationProps> = ({ onConfigCh
           <CardHeader>
             <CardTitle className="flex items-center">
               <Settings className="h-4 w-4 mr-2" />
-              健康报告
+              {t('toolConfig.healthReport')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -282,7 +284,7 @@ export const ToolConfiguration: React.FC<ToolConfigurationProps> = ({ onConfigCh
         {/* 工具配置列表 */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>工具配置</CardTitle>
+            <CardTitle>{t('toolConfig.toolConfig')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4 max-h-96 overflow-y-auto">
@@ -312,12 +314,12 @@ export const ToolConfiguration: React.FC<ToolConfigurationProps> = ({ onConfigCh
                         value={tool.defaultPath}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleToolChange(tool.name, 'defaultPath', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="请输入默认路径"
+                        placeholder={t('toolConfig.enterDefaultPath')}
                       />
                     </div>
                     <div>
                       <label htmlFor={`customPath-${tool.name}`} className="block text-sm font-medium text-gray-700 mb-1">
-                        自定义路径
+                        {t('toolConfig.customPath')}
                       </label>
                       <input
                         id={`customPath-${tool.name}`}
@@ -325,14 +327,14 @@ export const ToolConfiguration: React.FC<ToolConfigurationProps> = ({ onConfigCh
                         value={tool.customPath || ''}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleToolChange(tool.name, 'customPath', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="可选，留空使用默认路径"
+                        placeholder={t('toolConfig.optionalUseDefault')}
                       />
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-3 gap-4 mt-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">活跃状态</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('toolConfig.activeStatus')}</label>
                       <input
                         type="checkbox"
                         checked={tool.isActive}
@@ -341,22 +343,22 @@ export const ToolConfiguration: React.FC<ToolConfigurationProps> = ({ onConfigCh
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">支持格式</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('toolConfig.supportedFormats')}</label>
                       <div className="text-sm text-gray-600">
                         {tool.supportedFormats.join(', ')}
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">最后同步</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('toolConfig.lastSync')}</label>
                       <div className="text-sm text-gray-600">
-                        {tool.lastSync ? new Date(tool.lastSync).toLocaleDateString() : '从未'}
+                        {tool.lastSync ? new Date(tool.lastSync).toLocaleDateString() : t('toolConfig.never')}
                       </div>
                     </div>
                   </div>
 
                   {/* 自定义目录管理 */}
                   <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">自定义目录</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('toolConfig.customDirectories')}</label>
                     {customDirectories[tool.name] && customDirectories[tool.name].length > 0 ? (
                       <div className="space-y-2">
                         {customDirectories[tool.name].map((directory, index) => (
@@ -373,13 +375,13 @@ export const ToolConfiguration: React.FC<ToolConfigurationProps> = ({ onConfigCh
                         ))}
                       </div>
                     ) : (
-                      <div className="text-sm text-gray-500">暂无自定义目录</div>
+                      <div className="text-sm text-gray-500">{t('toolConfig.noCustomDirectories')}</div>
                     )}
                     
                     <div className="flex space-x-2 mt-2">
                       <input
                         type="text"
-                        placeholder="添加自定义目录"
+                        placeholder={t('toolConfig.addCustomDirectory')}
                         onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
                           if (e.key === 'Enter') {
                             addCustomDirectory(tool.name, e.currentTarget.value);
@@ -391,7 +393,7 @@ export const ToolConfiguration: React.FC<ToolConfigurationProps> = ({ onConfigCh
                       <Button
                         size="sm"
                         onClick={() => {
-                          const input = document.querySelector(`input[placeholder="添加自定义目录"]`) as HTMLInputElement;
+                          const input = document.querySelector(`input[placeholder="${t('toolConfig.addCustomDirectory')}"]`) as HTMLInputElement;
                           if (input) {
                             addCustomDirectory(tool.name, input.value);
                             input.value = '';
@@ -408,7 +410,7 @@ export const ToolConfiguration: React.FC<ToolConfigurationProps> = ({ onConfigCh
                     <div className="mt-4 p-3 bg-gray-50 rounded-md">
                       {validationResults[tool.name].errors.length > 0 && (
                         <div className="mb-2">
-                          <div className="text-sm font-semibold text-red-600 mb-1">错误:</div>
+                          <div className="text-sm font-semibold text-red-600 mb-1">{t('toolConfig.errors')}:</div>
                           <ul className="text-sm text-red-500 space-y-1">
                             {validationResults[tool.name].errors.map((error, index) => (
                               <li key={index}>• {error}</li>
@@ -418,7 +420,7 @@ export const ToolConfiguration: React.FC<ToolConfigurationProps> = ({ onConfigCh
                       )}
                       {validationResults[tool.name].warnings.length > 0 && (
                         <div>
-                          <div className="text-sm font-semibold text-yellow-600 mb-1">警告:</div>
+                          <div className="text-sm font-semibold text-yellow-600 mb-1">{t('toolConfig.warnings')}:</div>
                           <ul className="text-sm text-yellow-500 space-y-1">
                             {validationResults[tool.name].warnings.map((warning, index) => (
                               <li key={index}>• {warning}</li>
@@ -438,10 +440,10 @@ export const ToolConfiguration: React.FC<ToolConfigurationProps> = ({ onConfigCh
       {/* 底部状态栏 */}
       <div className="flex justify-between items-center text-sm text-gray-600">
         <div>
-          共配置 {tools.length} 个工具，其中 {tools.filter(t => t.isActive).length} 个活跃
+          {t('toolConfig.totalTools', { total: tools.length, active: tools.filter(t => t.isActive).length })}
         </div>
         <div>
-          最后更新: {new Date().toLocaleString()}
+          {t('toolConfig.lastUpdated')}: {new Date().toLocaleString()}
         </div>
       </div>
     </div>

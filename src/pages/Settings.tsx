@@ -13,6 +13,7 @@ import {
   Code,
   Key
 } from 'lucide-react';
+import { useT } from '../i18n';
 
 interface SettingsForm {
   autoBackup: boolean;
@@ -34,6 +35,7 @@ export const SettingsPage: React.FC = () => {
     notificationEnabled: true,
     telemetryEnabled: false
   });
+  const t = useT();
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
@@ -45,9 +47,9 @@ export const SettingsPage: React.FC = () => {
     try {
       // 模拟保存设置
       await new Promise(resolve => setTimeout(resolve, 1000));
-      setSaveStatus('设置保存成功！');
+      setSaveStatus(t('settings.saveSettingsSuccess'));
     } catch (error) {
-      setSaveStatus('保存设置时出错，请重试。');
+      setSaveStatus(t('settings.saveSettingsError'));
     } finally {
       setIsSaving(false);
     }
@@ -78,17 +80,17 @@ export const SettingsPage: React.FC = () => {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 flex items-center">
           <SettingsIcon className="h-6 w-6 mr-2" />
-          设置
+          {t('settings.title')}
         </h1>
-        <p className="text-gray-600 mt-1">配置MCP统一管理器的偏好设置</p>
+        <p className="text-gray-600 mt-1">{t('settings.description')}</p>
       </div>
 
       {saveStatus && (
         <div className={`mb-4 p-4 rounded-lg ${
-          saveStatus.includes('成功') ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
+          saveStatus.includes(t('common.success')) ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
         }`}>
           <div className="flex items-center">
-            {saveStatus.includes('成功') ? (
+            {saveStatus.includes(t('common.success')) ? (
               <CheckCircle className="h-4 w-4 mr-2" />
             ) : (
               <AlertCircle className="h-4 w-4 mr-2" />
@@ -104,41 +106,41 @@ export const SettingsPage: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Monitor className="h-5 w-5 mr-2" />
-              常规设置
+              {t('settings.general')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">主题</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t('settings.theme')}</label>
                 <select
                   value={settings.theme}
                   onChange={(e) => handleChange('theme', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="light">浅色主题</option>
-                  <option value="dark">深色主题</option>
-                  <option value="system">跟随系统</option>
+                  <option value="light">{t('settings.light')}</option>
+                  <option value="dark">{t('settings.dark')}</option>
+                  <option value="system">{t('settings.system')}</option>
                 </select>
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">默认导出格式</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t('settings.defaultExportFormat')}</label>
                 <select
                   value={settings.defaultExportFormat}
                   onChange={(e) => handleChange('defaultExportFormat', e.target.value as 'json' | 'yaml')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="json">JSON</option>
-                  <option value="yaml">YAML</option>
+                  <option value="json">{t('formats.json')}</option>
+                  <option value="yaml">{t('formats.yaml')}</option>
                 </select>
               </div>
             </div>
 
             <div className="flex items-center justify-between">
               <div>
-                <label className="block text-sm font-medium text-gray-700">显示高级选项</label>
-                <p className="text-sm text-gray-500">启用更多高级配置选项</p>
+                <label className="block text-sm font-medium text-gray-700">{t('settings.showAdvancedOptions')}</label>
+                <p className="text-sm text-gray-500">{t('settings.showAdvancedOptionsDescription')}</p>
               </div>
               <input
                 type="checkbox"
@@ -155,14 +157,14 @@ export const SettingsPage: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Database className="h-5 w-5 mr-2" />
-              备份设置
+              {t('settings.backup')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <label className="block text-sm font-medium text-gray-700">自动备份</label>
-                <p className="text-sm text-gray-500">定期自动创建数据备份</p>
+                <label className="block text-sm font-medium text-gray-700">{t('settings.autoBackup')}</label>
+                <p className="text-sm text-gray-500">{t('settings.autoBackupDescription')}</p>
               </div>
               <input
                 type="checkbox"
@@ -174,18 +176,18 @@ export const SettingsPage: React.FC = () => {
 
             {settings.autoBackup && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">备份间隔 (小时)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t('settings.backupInterval')}</label>
                 <select
                   value={settings.backupInterval}
                   onChange={(e) => handleChange('backupInterval', parseInt(e.target.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value={1}>每小时</option>
-                  <option value={6}>每6小时</option>
-                  <option value={12}>每12小时</option>
-                  <option value={24}>每天</option>
-                  <option value={48}>每2天</option>
-                  <option value={168}>每周</option>
+                  <option value={1}>{t('settings.everyHour')}</option>
+                  <option value={6}>{t('settings.every6Hours')}</option>
+                  <option value={12}>{t('settings.every12Hours')}</option>
+                  <option value={24}>{t('settings.daily')}</option>
+                  <option value={48}>{t('settings.every2Days')}</option>
+                  <option value={168}>{t('settings.weekly')}</option>
                 </select>
               </div>
             )}
@@ -197,14 +199,14 @@ export const SettingsPage: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center">
               <FileText className="h-5 w-5 mr-2" />
-              通知设置
+              {t('settings.notifications')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <label className="block text-sm font-medium text-gray-700">启用通知</label>
-                <p className="text-sm text-gray-500">接收重要事件的通知</p>
+                <label className="block text-sm font-medium text-gray-700">{t('settings.enableNotifications')}</label>
+                <p className="text-sm text-gray-500">{t('settings.enableNotificationsDescription')}</p>
               </div>
               <input
                 type="checkbox"
@@ -222,14 +224,14 @@ export const SettingsPage: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Code className="h-5 w-5 mr-2" />
-                高级设置
+                {t('settings.advanced')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">启用遥测</label>
-                  <p className="text-sm text-gray-500">发送匿名使用数据以帮助改进产品</p>
+                  <label className="block text-sm font-medium text-gray-700">{t('settings.enableTelemetry')}</label>
+                  <p className="text-sm text-gray-500">{t('settings.telemetryDescription')}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -251,7 +253,7 @@ export const SettingsPage: React.FC = () => {
             className="flex items-center gap-2"
           >
             <Save className="h-4 w-4" />
-            {isSaving ? '保存中...' : '保存设置'}
+            {isSaving ? t('settings.saving') : t('settings.saveSettings')}
           </Button>
           
           <Button
@@ -261,7 +263,7 @@ export const SettingsPage: React.FC = () => {
             className="flex items-center gap-2"
           >
             <X className="h-4 w-4" />
-            重置
+            {t('settings.reset')}
           </Button>
         </div>
       </div>

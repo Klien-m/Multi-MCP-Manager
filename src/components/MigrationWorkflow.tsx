@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Button } from './ui/button';
-import { 
-  FileText, 
-  ArrowRight, 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
+import {
+  FileText,
+  ArrowRight,
+  CheckCircle,
+  XCircle,
+  Clock,
   RefreshCw,
   Upload,
   Download
 } from 'lucide-react';
 import { CrossToolMigrationService } from '../services/crossToolMigrationService';
 import { ToolConfiguration } from './ToolConfiguration';
+import { useT } from '../i18n';
 
 interface MigrationTask {
   id: string;
@@ -32,6 +33,7 @@ interface MigrationProgress {
 }
 
 export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> = ({ onMigrationComplete }) => {
+  const t = useT();
   const [sourceTool, setSourceTool] = useState<string>('');
   const [targetTool, setTargetTool] = useState<string>('');
   const [selectedMCPs, setSelectedMCPs] = useState<string[]>([]);
@@ -61,17 +63,17 @@ export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> =
 
   const handleStartMigration = async () => {
     if (!sourceTool || !targetTool || selectedMCPs.length === 0) {
-      setMigrationStatus('Please select source tool, target tool, and MCPs to migrate');
+      setMigrationStatus(t('migrationWorkflow.selectToolsAndMCPs'));
       return;
     }
 
     if (sourceTool === targetTool) {
-      setMigrationStatus('Source and target tools must be different');
+      setMigrationStatus(t('migrationWorkflow.sourceTargetDifferent'));
       return;
     }
 
     setIsMigrating(true);
-    setMigrationStatus('Validating migration...');
+    setMigrationStatus(t('migrationWorkflow.validatingMigration'));
     setMigrationProgress(0);
 
     try {
@@ -83,7 +85,7 @@ export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> =
       );
 
       setCurrentTask(task);
-      setMigrationStatus('Starting migration...');
+      setMigrationStatus(t('migrationWorkflow.startingMigration'));
       
       // Execute migration with progress tracking
       await CrossToolMigrationService.executeMigrationTask(
@@ -91,16 +93,16 @@ export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> =
         (progress) => {
           // Use the progress object from migration engine
           setMigrationProgress(progress.progress || 0);
-          setMigrationStatus(`Processing ${progress.current}/${progress.total} items...`);
+          setMigrationStatus(t('migrationWorkflow.processingItems', { current: progress.current, total: progress.total }));
         }
       );
 
-      setMigrationStatus('Migration completed successfully!');
+      setMigrationStatus(t('migrationWorkflow.migrationSuccess'));
       await loadMigrationData();
       onMigrationComplete?.();
 
     } catch (error) {
-      setMigrationStatus(`Migration failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setMigrationStatus(t('migrationWorkflow.migrationFailed', { error: error instanceof Error ? error.message : t('migrationWorkflow.unknownError') }));
     } finally {
       setIsMigrating(false);
     }
@@ -111,7 +113,7 @@ export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> =
       const cancelled = await CrossToolMigrationService.cancelMigrationTask(currentTask.id);
       if (cancelled) {
         setIsMigrating(false);
-        setMigrationStatus('Migration cancelled');
+        setMigrationStatus(t('migrationWorkflow.migrationCancelled'));
         setCurrentTask(null);
       }
     }
@@ -156,7 +158,7 @@ export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> =
       <CardHeader className="border-b">
         <CardTitle className="text-2xl font-bold flex items-center gap-2">
           <RefreshCw className="h-6 w-6" />
-          Cross-Tool Migration Workflow
+          {t('migrationWorkflow.title')}
         </CardTitle>
       </CardHeader>
 
@@ -169,7 +171,7 @@ export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> =
             className="flex items-center gap-2"
           >
             <FileText className="h-4 w-4" />
-            Select MCPs
+            {t('migrationWorkflow.selectMCPs')}
           </Button>
           <Button
             onClick={selectedMCPs.length === 0 ? undefined : () => setActiveTab('migrate')}
@@ -177,7 +179,7 @@ export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> =
             className={`flex items-center gap-2 ${selectedMCPs.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             <ArrowRight className="h-4 w-4" />
-            Migrate
+            {t('migrationWorkflow.migrate')}
           </Button>
           <Button
             onClick={() => setActiveTab('history')}
@@ -185,7 +187,7 @@ export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> =
             className="flex items-center gap-2"
           >
             <Clock className="h-4 w-4" />
-            History
+            {t('migrationWorkflow.history')}
           </Button>
         </div>
 
@@ -198,36 +200,36 @@ export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> =
             {/* Migration Configuration */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Migration Configuration</CardTitle>
+                <CardTitle className="text-lg">{t('migrationWorkflow.migrationConfig')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">Source Tool</label>
+                    <label className="block text-sm font-medium mb-2">{t('migrationWorkflow.sourceTool')}</label>
                     <select
                       value={sourceTool}
                       onChange={(e) => setSourceTool(e.target.value)}
                       className="w-full p-2 border rounded"
                     >
-                      <option value="">Select source tool</option>
-                      <option value="cursor">Cursor</option>
-                      <option value="claude">Claude Code</option>
-                      <option value="vscode">VS Code</option>
-                      <option value="jetbrains">JetBrains</option>
+                      <option value="">{t('migrationWorkflow.selectSourceTool')}</option>
+                      <option value="cursor">{t('migrationWorkflow.tools.cursor')}</option>
+                      <option value="claude">{t('migrationWorkflow.tools.claude')}</option>
+                      <option value="vscode">{t('migrationWorkflow.tools.vscode')}</option>
+                      <option value="jetbrains">{t('migrationWorkflow.tools.jetbrains')}</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">Target Tool</label>
+                    <label className="block text-sm font-medium mb-2">{t('migrationWorkflow.targetTool')}</label>
                     <select
                       value={targetTool}
                       onChange={(e) => setTargetTool(e.target.value)}
                       className="w-full p-2 border rounded"
                     >
-                      <option value="">Select target tool</option>
-                      <option value="cursor">Cursor</option>
-                      <option value="claude">Claude Code</option>
-                      <option value="vscode">VS Code</option>
-                      <option value="jetbrains">JetBrains</option>
+                      <option value="">{t('migrationWorkflow.selectTargetTool')}</option>
+                      <option value="cursor">{t('migrationWorkflow.tools.cursor')}</option>
+                      <option value="claude">{t('migrationWorkflow.tools.claude')}</option>
+                      <option value="vscode">{t('migrationWorkflow.tools.vscode')}</option>
+                      <option value="jetbrains">{t('migrationWorkflow.tools.jetbrains')}</option>
                     </select>
                   </div>
                 </div>
@@ -235,12 +237,12 @@ export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> =
                 {sourceTool && (
                   <div className="mt-4">
                     <p className="text-sm text-gray-600">
-                      Select MCPs from {sourceTool} to migrate to {targetTool}
+                      {t('migrationWorkflow.selectMCPsFromTo', { sourceTool, targetTool })}
                     </p>
                     {/* Placeholder for MCP selection - would integrate with MCPDataList */}
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 mt-2">
                       <p className="text-center text-gray-500">
-                        MCP selection interface would go here
+                        {t('migrationWorkflow.mcpSelectionPlaceholder')}
                       </p>
                     </div>
                   </div>
@@ -257,7 +259,7 @@ export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> =
                 className="flex items-center gap-2"
               >
                 <ArrowRight className="h-4 w-4" />
-                Continue to Migration
+                {t('migrationWorkflow.continueToMigration')}
               </Button>
             </div>
           </div>
@@ -269,22 +271,22 @@ export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> =
             {/* Migration Summary */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Migration Summary</CardTitle>
+                <CardTitle className="text-lg">{t('migrationWorkflow.migrationSummary')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <div className="text-sm text-gray-600">Source Tool</div>
+                    <div className="text-sm text-gray-600">{t('migrationWorkflow.sourceTool')}</div>
                     <div className="font-medium">{sourceTool}</div>
                   </div>
                   <div className="space-y-2">
-                    <div className="text-sm text-gray-600">Target Tool</div>
+                    <div className="text-sm text-gray-600">{t('migrationWorkflow.targetTool')}</div>
                     <div className="font-medium">{targetTool}</div>
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <div className="text-sm text-gray-600">Selected MCPs</div>
+                  <div className="text-sm text-gray-600">{t('migrationWorkflow.selectedMCPs')}</div>
                   <div className="font-medium">{selectedMCPs.length} items selected</div>
                 </div>
               </CardContent>
@@ -294,7 +296,7 @@ export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> =
             {isMigrating && currentTask && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Migration Progress</CardTitle>
+                  <CardTitle className="text-lg">{t('migrationWorkflow.migrationProgress')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="w-full bg-gray-200 rounded-full h-2">
@@ -313,7 +315,7 @@ export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> =
                       className="flex items-center gap-2"
                     >
                       <XCircle className="h-4 w-4" />
-                      Cancel Migration
+                      {t('migrationWorkflow.cancelMigration')}
                     </Button>
                   </div>
                 </CardContent>
@@ -329,7 +331,7 @@ export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> =
                   className="flex items-center gap-2"
                 >
                   <Upload className="h-4 w-4" />
-                  Back to Selection
+                  {t('migrationWorkflow.backToSelection')}
                 </Button>
                 <Button
                   onClick={handleStartMigration}
@@ -337,7 +339,7 @@ export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> =
                   className="flex items-center gap-2"
                 >
                   <Download className="h-4 w-4" />
-                  {isMigrating ? 'Migrating...' : 'Start Migration'}
+                  {isMigrating ? t('migrationWorkflow.migrating') : t('migrationWorkflow.startMigration')}
                 </Button>
               </div>
             )}
@@ -351,7 +353,7 @@ export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> =
             {activeTasks.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Active Migration Tasks</CardTitle>
+                  <CardTitle className="text-lg">{t('migrationWorkflow.activeTasks')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="max-h-64 overflow-y-auto">
@@ -364,7 +366,7 @@ export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> =
                               {task.sourceTool} → {task.targetTool}
                             </div>
                             <div className="text-sm text-gray-600">
-                              {task.mcpData.length} MCPs • {task.progress}%
+                              {task.mcpData.length} {t('migrationWorkflow.mcpItems')} • {task.progress}%
                             </div>
                           </div>
                         </div>
@@ -374,7 +376,7 @@ export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> =
                             size="sm"
                             onClick={() => setCurrentTask(task)}
                           >
-                            View
+                            {t('migrationWorkflow.view')}
                           </Button>
                         </div>
                       </div>
@@ -387,7 +389,7 @@ export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> =
             {/* Migration History */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Migration History</CardTitle>
+                <CardTitle className="text-lg">{t('migrationWorkflow.migrationHistory')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="max-h-96 overflow-y-auto">
@@ -400,7 +402,7 @@ export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> =
                             {task.sourceTool} → {task.targetTool}
                           </div>
                           <div className="text-sm text-gray-600">
-                            {task.mcpData.length} MCPs • {task.progress}%
+                            {task.mcpData.length} {t('migrationWorkflow.mcpItems')} • {task.progress}%
                           </div>
                           <div className="text-xs text-gray-500">
                             {new Date(task.createdAt).toLocaleString()}
@@ -424,14 +426,14 @@ export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> =
                 className="flex items-center gap-2"
               >
                 <ArrowRight className="h-4 w-4" />
-                Back to Migration
+                {t('migrationWorkflow.backToMigration')}
               </Button>
               <Button
                 onClick={loadMigrationData}
                 className="flex items-center gap-2"
               >
                 <RefreshCw className="h-4 w-4" />
-                Refresh
+                {t('migrationWorkflow.refresh')}
               </Button>
             </div>
           </div>
@@ -441,7 +443,7 @@ export const MigrationWorkflow: React.FC<{ onMigrationComplete?: () => void }> =
         {migrationStatus && (
           <div className={`mt-4 p-4 rounded-lg ${isMigrating ? "bg-blue-50" : "bg-green-50"}`}>
             <div className="font-medium">
-              {isMigrating ? "Migration in Progress" : "Migration Complete"}
+              {isMigrating ? t('migrationWorkflow.migrationInProgress') : t('migrationWorkflow.migrationComplete')}
             </div>
             <div className="text-sm">{migrationStatus}</div>
           </div>

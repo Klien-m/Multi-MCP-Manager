@@ -1,6 +1,9 @@
 import React from 'react';
+import { useT } from '../i18n';
 
 export const Header: React.FC = () => {
+  const t = useT();
+  
   return (
     <header className="bg-card border-b border-border px-6 py-4">
       <div className="flex items-center justify-between">
@@ -9,7 +12,7 @@ export const Header: React.FC = () => {
         </div>
         <div className="flex items-center space-x-4">
           <div className="text-sm text-gray-600">
-            欢迎使用MCP数据管理工具
+            {t('mcpManager.description')}
           </div>
         </div>
       </div>

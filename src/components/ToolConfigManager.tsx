@@ -2,19 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { ToolConfig, AIConfig } from '../types';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Button } from './ui/button';
-import { 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Save, 
-  X, 
-  Check, 
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Save,
+  X,
+  Check,
   AlertCircle,
   Folder,
   Settings,
   Monitor,
   PlusCircle
 } from 'lucide-react';
+import { useT } from '../i18n';
 
 interface ToolConfigManagerProps {
   aiConfig: AIConfig;
@@ -32,6 +33,7 @@ interface ToolFormProps {
 }
 
 const ToolForm: React.FC<ToolFormProps> = ({ tool, onSave, onCancel, isEditing }) => {
+  const t = useT();
   const [formData, setFormData] = useState<Partial<ToolConfig>>({
     name: '',
     displayName: '',
@@ -64,40 +66,40 @@ const ToolForm: React.FC<ToolFormProps> = ({ tool, onSave, onCancel, isEditing }
   return (
     <Card className="mb-4">
       <CardHeader>
-        <CardTitle>{isEditing ? '编辑工具配置' : '添加新工具'}</CardTitle>
+        <CardTitle>{isEditing ? t('toolForm.editTitle') : t('toolForm.addTitle')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">工具名称</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t('toolForm.toolName')}</label>
             <input
               type="text"
               value={formData.name || ''}
               onChange={(e) => handleChange('name', e.target.value)}
-              placeholder="例如: cursor"
+              placeholder={t('toolForm.toolNamePlaceholder')}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">显示名称</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t('toolForm.displayName')}</label>
             <input
               type="text"
               value={formData.displayName || ''}
               onChange={(e) => handleChange('displayName', e.target.value)}
-              placeholder="例如: Cursor"
+              placeholder={t('toolForm.displayNamePlaceholder')}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">默认路径</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t('toolForm.defaultPath')}</label>
             <div className="flex gap-2">
               <input
                 type="text"
                 value={formData.defaultPath || ''}
                 onChange={(e) => handleChange('defaultPath', e.target.value)}
-                placeholder="默认MCP文件路径"
+                placeholder={t('toolForm.defaultPathPlaceholder')}
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <select
@@ -113,23 +115,23 @@ const ToolForm: React.FC<ToolFormProps> = ({ tool, onSave, onCancel, isEditing }
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">自定义路径</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t('toolForm.customPath')}</label>
             <input
               type="text"
               value={formData.customPath || ''}
               onChange={(e) => handleChange('customPath', e.target.value)}
-              placeholder="可选的自定义路径"
+              placeholder={t('toolForm.customPathPlaceholder')}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">支持格式</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t('toolForm.supportedFormats')}</label>
             <input
               type="text"
               value={formData.supportedFormats?.join(', ') || ''}
               onChange={(e) => handleChange('supportedFormats', e.target.value.split(',').map(f => f.trim()))}
-              placeholder="json, yaml, yml"
+              placeholder={t('toolForm.supportedFormatsPlaceholder')}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -142,18 +144,18 @@ const ToolForm: React.FC<ToolFormProps> = ({ tool, onSave, onCancel, isEditing }
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
             <label className="ml-2 block text-sm text-gray-700">
-              启用此工具
+              {t('toolForm.enableTool')}
             </label>
           </div>
 
           <div className="flex gap-2">
             <Button variant="primary" onClick={handleSubmit}>
               <Save className="h-4 w-4 mr-2" />
-              保存
+              {t('toolForm.save')}
             </Button>
             <Button variant="secondary" onClick={onCancel}>
               <X className="h-4 w-4 mr-2" />
-              取消
+              {t('toolForm.cancel')}
             </Button>
           </div>
         </div>
@@ -169,6 +171,7 @@ const ToolConfigManager: React.FC<ToolConfigManagerProps> = ({
   onToolUpdate,
   onToolDelete
 }) => {
+  const t = useT();
   const [editingTool, setEditingTool] = useState<Partial<ToolConfig> | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
 
@@ -218,19 +221,19 @@ const ToolConfigManager: React.FC<ToolConfigManagerProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center">
             <Settings className="h-5 w-5 mr-2" />
-            AI配置设置
+            {t('toolConfigManager.aiConfigTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">默认工具</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t('toolConfigManager.defaultTool')}</label>
               <select
                 value={aiConfig.defaultTool || ''}
                 onChange={(e) => handleConfigChange('defaultTool', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">选择默认工具</option>
+                <option value="">{t('toolConfigManager.selectDefaultTool')}</option>
                 {aiConfig.tools.map(tool => (
                   <option key={tool.id} value={tool.id}>{tool.displayName || tool.name}</option>
                 ))}
@@ -239,8 +242,8 @@ const ToolConfigManager: React.FC<ToolConfigManagerProps> = ({
 
             <div className="flex items-center justify-between">
               <div>
-                <label className="block text-sm font-medium text-gray-700">自动同步</label>
-                <p className="text-sm text-gray-500">自动检测和读取MCP文件更改</p>
+                <label className="block text-sm font-medium text-gray-700">{t('toolConfigManager.autoSync')}</label>
+                <p className="text-sm text-gray-500">{t('toolConfigManager.autoSyncDescription')}</p>
               </div>
               <input
                 type="checkbox"
@@ -252,8 +255,8 @@ const ToolConfigManager: React.FC<ToolConfigManagerProps> = ({
 
             <div className="flex items-center justify-between">
               <div>
-                <label className="block text-sm font-medium text-gray-700">备份启用</label>
-                <p className="text-sm text-gray-500">自动创建MCP数据备份</p>
+                <label className="block text-sm font-medium text-gray-700">{t('toolConfigManager.backupEnabled')}</label>
+                <p className="text-sm text-gray-500">{t('toolConfigManager.backupEnabledDescription')}</p>
               </div>
               <input
                 type="checkbox"
@@ -264,7 +267,7 @@ const ToolConfigManager: React.FC<ToolConfigManagerProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">备份间隔 (小时)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t('toolConfigManager.backupInterval')}</label>
               <input
                 type="number"
                 value={aiConfig.backupInterval}
@@ -283,11 +286,11 @@ const ToolConfigManager: React.FC<ToolConfigManagerProps> = ({
         <CardHeader className="flex items-center justify-between">
           <CardTitle className="flex items-center">
             <Monitor className="h-5 w-5 mr-2" />
-            工具配置管理
+            {t('toolConfigManager.toolConfigTitle')}
           </CardTitle>
           <Button variant="primary" onClick={handleAddTool}>
             <PlusCircle className="h-4 w-4 mr-2" />
-            添加工具
+            {t('toolConfigManager.addTool')}
           </Button>
         </CardHeader>
         <CardContent>
@@ -310,7 +313,7 @@ const ToolConfigManager: React.FC<ToolConfigManagerProps> = ({
                       <span className={`px-2 py-1 rounded text-xs font-medium ${
                         tool.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                       }`}>
-                        {tool.isActive ? '已启用' : '已禁用'}
+                        {tool.isActive ? t('toolConfigManager.enabled') : t('toolConfigManager.disabled')}
                       </span>
                       {tool.error && (
                         <AlertCircle className="h-4 w-4 text-red-500" />
@@ -318,14 +321,14 @@ const ToolConfigManager: React.FC<ToolConfigManagerProps> = ({
                     </div>
                     
                     <div className="text-sm text-gray-600 space-y-1">
-                      <div>工具名称: {tool.name}</div>
-                      <div>默认路径: {tool.defaultPath}</div>
+                      <div>{t('toolConfigManager.toolName')}: {tool.name}</div>
+                      <div>{t('toolConfigManager.defaultPath')}: {tool.defaultPath}</div>
                       {tool.customPath && (
-                        <div>自定义路径: {tool.customPath}</div>
+                        <div>{t('toolConfigManager.customPath')}: {tool.customPath}</div>
                       )}
-                      <div>支持格式: {tool.supportedFormats.join(', ')}</div>
+                      <div>{t('toolConfigManager.supportedFormats')}: {tool.supportedFormats.join(', ')}</div>
                       {tool.lastSync && (
-                        <div>最后同步: {new Date(tool.lastSync).toLocaleString('zh-CN')}</div>
+                        <div>{t('toolConfigManager.lastSync')}: {new Date(tool.lastSync).toLocaleString('zh-CN')}</div>
                       )}
                     </div>
                   </div>
@@ -353,11 +356,11 @@ const ToolConfigManager: React.FC<ToolConfigManagerProps> = ({
             {aiConfig.tools.length === 0 && !editingTool && (
               <div className="text-center py-8">
                 <Monitor className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">暂无配置的工具</h3>
-                <p className="text-gray-600 mb-4">请添加工具配置以开始使用MCP统一管理器</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{t('toolConfigManager.noToolsTitle')}</h3>
+                <p className="text-gray-600 mb-4">{t('toolConfigManager.noToolsDescription')}</p>
                 <Button variant="primary" onClick={handleAddTool}>
                   <Plus className="h-4 w-4 mr-2" />
-                  添加第一个工具
+                  {t('toolConfigManager.addFirstTool')}
                 </Button>
               </div>
             )}
