@@ -1,0 +1,10 @@
+import React from 'react';
+
+export const ToolConfig: React.FC = () => {
+  return (
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">工具配置</h1>
+      <p>工具配置页面正在开发中...</p>
+    </div>
+  );
+};

@@ -1,0 +1,32 @@
+{
+  "name": "multi-mcp-unified-manager",
+  "version": "1.0.0",
+  "lint": {
+    "rules": {
+      "recommended": true,
+      "typescript": true,
+      "react": true
+    }
+  },
+  "format": {
+    "lineWidth": 100,
+    "tabWidth": 2,
+    "semi": true,
+    "singleQuote": true,
+    "printWidth": 100
+  },
+  "organizeImports": {
+    "enabled": true,
+    "importSorts": [
+      {
+        "type": "SideEffect"
+      },
+      {
+        "type": "Type"
+      },
+      {
+        "type": "Value"
+      }
+    ]
+  }
+}
