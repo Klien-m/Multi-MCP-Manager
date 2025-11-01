@@ -1,38 +1,38 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { LucideIcon } from 'lucide-react';
+import { LayoutDashboard, Database, Cpu, ArrowRightLeft, Settings } from 'lucide-react';
 
 interface NavItem {
   title: string;
   href: string;
-  icon: LucideIcon;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
 const navigation: NavItem[] = [
   {
     title: 'Dashboard',
     href: '/',
-    icon: 'LayoutDashboard',
+    icon: LayoutDashboard,
   },
   {
     title: 'MCP Manager',
     href: '/mcp',
-    icon: 'Database',
+    icon: Database,
   },
   {
     title: 'AI Tools',
     href: '/tools',
-    icon: 'Cpu',
+    icon: Cpu,
   },
   {
     title: 'Migration',
     href: '/migration',
-    icon: 'ArrowRightLeft',
+    icon: ArrowRightLeft,
   },
   {
     title: 'Settings',
     href: '/settings',
-    icon: 'Settings',
+    icon: Settings,
   },
 ];
 
