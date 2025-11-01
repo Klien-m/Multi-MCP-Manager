@@ -6,14 +6,16 @@ interface ButtonProps {
   className?: string;
   variant?: 'primary' | 'secondary' | 'destructive';
   size?: 'sm' | 'md' | 'lg';
+  disabled?: boolean;
 }
 
-export const Button: React.FC<ButtonProps> = ({ 
-  children, 
-  onClick, 
-  className = '', 
+export const Button: React.FC<ButtonProps> = ({
+  children,
+  onClick,
+  className = '',
   variant = 'primary',
-  size = 'md'
+  size = 'md',
+  disabled = false
 }) => {
   const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors';
   
@@ -32,7 +34,11 @@ export const Button: React.FC<ButtonProps> = ({
   const classes = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`;
   
   return (
-    <button className={classes} onClick={onClick}>
+    <button
+      className={`${classes} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
+    >
       {children}
     </button>
   );

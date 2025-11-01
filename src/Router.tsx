@@ -5,7 +5,7 @@ import { Dashboard } from './pages/Dashboard';
 import { MCPManager } from './pages/MCPManager';
 import { ToolConfig } from './pages/ToolConfig';
 import { Migration } from './pages/Migration';
-import { Settings } from './pages/Settings';
+import { SettingsPage as Settings } from './pages/Settings';
 
 const router = createBrowserRouter([
   {
