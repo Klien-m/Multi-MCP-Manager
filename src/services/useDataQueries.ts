@@ -18,8 +18,8 @@ export const QUERY_KEYS = {
 export const useUserData = () => {
   return useQuery({
     queryKey: QUERY_KEYS.userData,
-    queryFn: () => {
-      const data = storageService.loadUserData();
+    queryFn: async () => {
+      const data = await storageService.loadUserData();
       if (!data) {
         throw new Error('No user data found');
       }
@@ -35,8 +35,8 @@ export const useUserData = () => {
 export const useMcpCollections = () => {
   return useQuery({
     queryKey: QUERY_KEYS.mcpCollections,
-    queryFn: () => {
-      const data = storageService.loadUserData();
+    queryFn: async () => {
+      const data = await storageService.loadUserData();
       return data?.mcpCollections || [];
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -49,8 +49,8 @@ export const useMcpCollections = () => {
 export const useToolConfigs = () => {
   return useQuery({
     queryKey: QUERY_KEYS.toolConfigs,
-    queryFn: () => {
-      const data = storageService.loadUserData();
+    queryFn: async () => {
+      const data = await storageService.loadUserData();
       return data?.toolConfigs || [];
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -91,7 +91,7 @@ export const useSaveUserData = () => {
 
   return useMutation({
     mutationFn: async (data: AppState) => {
-      storageService.saveUserData(data);
+      await storageService.saveUserData(data);
       return data;
     },
     onSuccess: () => {
@@ -112,7 +112,7 @@ export const useCreateBackup = () => {
 
   return useMutation({
     mutationFn: async () => {
-      return storageService.backupUserData();
+      return await storageService.backupUserData();
     },
     onSuccess: () => {
       // Invalidate and refetch backups
@@ -130,7 +130,7 @@ export const useRestoreBackup = () => {
 
   return useMutation({
     mutationFn: async (backupId: string) => {
-      return storageService.restoreFromBackup(backupId);
+      return await storageService.restoreFromBackup(backupId);
     },
     onSuccess: () => {
       // Invalidate and refetch all data
@@ -151,7 +151,7 @@ export const useDeleteBackup = () => {
 
   return useMutation({
     mutationFn: async (backupId: string) => {
-      return storageService.deleteBackup(backupId);
+      return await storageService.deleteBackup(backupId);
     },
     onSuccess: () => {
       // Invalidate and refetch backups
@@ -169,7 +169,7 @@ export const useImportMcpData = () => {
 
   return useMutation({
     mutationFn: async (filePath: string) => {
-      return storageService.importMCPData(filePath);
+      return await storageService.importMCPData(filePath);
     },
     onSuccess: () => {
       // Invalidate and refetch MCP collections
@@ -185,7 +185,7 @@ export const useImportMcpData = () => {
 export const useExportMcpData = () => {
   return useMutation({
     mutationFn: async ({ mcpIds, format }: { mcpIds: string[]; format?: 'json' | 'csv' }) => {
-      return storageService.exportMCPData(mcpIds, format);
+      return await storageService.exportMCPData(mcpIds, format);
     },
   });
 };

@@ -102,7 +102,7 @@ export class JsonFormatAdapter implements FormatAdapter {
  * YAML格式适配器
  */
 export class YamlFormatAdapter implements FormatAdapter {
-  private readonly SUPPORTED_FORMATS = ['yaml', 'yml'];
+  readonly SUPPORTED_FORMATS = ['yaml', 'yml'];
   
   supportsFormat(format: string): boolean {
     return this.SUPPORTED_FORMATS.includes(format.toLowerCase());

@@ -32,19 +32,26 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   useEffect(() => {
     if (!userData && !isLoading) {
       // Initialize with default data or try to load from storage
-      const storedData = storageService.loadUserData();
-      if (storedData) {
-        setMcpCollections(storedData.mcpCollections);
-        setToolConfigs(storedData.toolConfigs);
-        setVersions(storedData.versions);
-        setBackups(storedData.backups);
-      } else {
-        // Initialize with empty default data to ensure Dashboard works
+      storageService.loadUserData().then(storedData => {
+        if (storedData) {
+          setMcpCollections(storedData.mcpCollections);
+          setToolConfigs(storedData.toolConfigs);
+          setVersions(storedData.versions);
+          setBackups(storedData.backups);
+        } else {
+          // Initialize with empty default data to ensure Dashboard works
+          setMcpCollections([]);
+          setToolConfigs([]);
+          setVersions([]);
+          setBackups([]);
+        }
+      }).catch(error => {
+        console.error('Failed to load stored data:', error);
         setMcpCollections([]);
         setToolConfigs([]);
         setVersions([]);
         setBackups([]);
-      }
+      });
     }
   }, [userData, isLoading, setMcpCollections, setToolConfigs, setVersions, setBackups]);
 

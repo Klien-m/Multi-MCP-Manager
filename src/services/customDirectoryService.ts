@@ -1,5 +1,5 @@
 import { appConfigDir } from '@tauri-apps/api/path';
-import { readTextFile, writeTextFile, exists } from '@tauri-apps/api/fs';
+import { readTextFile, writeTextFile, exists } from '@tauri-apps/plugin-fs';
 import { ToolConfig, CustomDirectoryConfig } from '../types';
 import { fileScannerService } from './fileScanner';
 
@@ -33,10 +33,7 @@ export class CustomDirectoryService {
   static async saveCustomDirectories(config: CustomDirectoryConfig): Promise<void> {
     try {
       const configPath = await this.getConfigPath();
-      await writeTextFile({
-        path: configPath,
-        contents: JSON.stringify(config, null, 2)
-      });
+        await writeTextFile(configPath, JSON.stringify(config, null, 2));
     } catch (error) {
       console.error('Failed to save custom directories config:', error);
       throw new Error('保存自定义目录配置失败');

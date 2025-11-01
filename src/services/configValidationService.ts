@@ -1,4 +1,4 @@
-import { exists, readTextFile } from '@tauri-apps/api/fs';
+import { exists, readTextFile } from '@tauri-apps/plugin-fs';
 import { ToolConfig, ValidationResult } from '../types';
 import { CustomDirectoryService } from './customDirectoryService';
 import { fileScannerService } from './fileScanner';

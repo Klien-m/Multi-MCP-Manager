@@ -9,6 +9,7 @@ import {
   VersionRecord,
   BackupRecord,
   AIConfig,
+  MigrationStatus,
 } from '../types';
 
 interface AppStore extends AppState {
@@ -156,7 +157,7 @@ export const useAppStore = create<AppStore>()(
       completeMigration: (taskId, success, error) =>
         set((state) => {
           if (state.currentMigration && state.currentMigration.id === taskId) {
-            state.currentMigration.status = success ? 'completed' : 'failed';
+            state.currentMigration.status = success ? MigrationStatus.COMPLETED : MigrationStatus.FAILED;
             if (error) {
               state.currentMigration.error = error;
             }

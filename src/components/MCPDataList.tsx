@@ -282,7 +282,6 @@ const MCPDataListView: React.FC<MCPDataListProps> = ({
                 variant="secondary"
                 size="sm"
                 onClick={clearFilters}
-                disabled={!searchTerm && !filterTool && filterTags.length === 0}
               >
                 <Filter className="h-4 w-4" />
                 清除筛选
