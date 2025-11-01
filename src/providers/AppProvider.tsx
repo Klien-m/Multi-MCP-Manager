@@ -38,6 +38,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         setToolConfigs(storedData.toolConfigs);
         setVersions(storedData.versions);
         setBackups(storedData.backups);
+      } else {
+        // Initialize with empty default data to ensure Dashboard works
+        setMcpCollections([]);
+        setToolConfigs([]);
+        setVersions([]);
+        setBackups([]);
       }
     }
   }, [userData, isLoading, setMcpCollections, setToolConfigs, setVersions, setBackups]);

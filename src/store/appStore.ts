@@ -77,7 +77,7 @@ export const useAppStore = create<AppStore>()(
 
       updateMcpCollection: (id, data) =>
         set((state) => {
-          const index = state.mcpCollections.findIndex((c) => c.id === id);
+          const index = state.mcpCollections.findIndex((c: MCPData) => c.id === id);
           if (index !== -1) {
             state.mcpCollections[index] = { ...state.mcpCollections[index], ...data };
           }
@@ -85,7 +85,7 @@ export const useAppStore = create<AppStore>()(
 
       removeMcpCollection: (id) =>
         set((state) => {
-          state.mcpCollections = state.mcpCollections.filter((c) => c.id !== id);
+          state.mcpCollections = state.mcpCollections.filter((c: MCPData) => c.id !== id);
         }),
 
       setToolConfigs: (configs) =>
@@ -100,7 +100,7 @@ export const useAppStore = create<AppStore>()(
 
       updateToolConfig: (id, data) =>
         set((state) => {
-          const index = state.toolConfigs.findIndex((c) => c.id === id);
+          const index = state.toolConfigs.findIndex((c: ToolConfig) => c.id === id);
           if (index !== -1) {
             state.toolConfigs[index] = { ...state.toolConfigs[index], ...data };
           }
@@ -108,7 +108,7 @@ export const useAppStore = create<AppStore>()(
 
       removeToolConfig: (id) =>
         set((state) => {
-          state.toolConfigs = state.toolConfigs.filter((c) => c.id !== id);
+          state.toolConfigs = state.toolConfigs.filter((c: ToolConfig) => c.id !== id);
         }),
 
       setVersions: (versions) =>
@@ -123,7 +123,7 @@ export const useAppStore = create<AppStore>()(
 
       removeVersion: (id) =>
         set((state) => {
-          state.versions = state.versions.filter((v) => v.id !== id);
+          state.versions = state.versions.filter((v: VersionRecord) => v.id !== id);
         }),
 
       setBackups: (backups) =>
@@ -138,7 +138,7 @@ export const useAppStore = create<AppStore>()(
 
       removeBackup: (id) =>
         set((state) => {
-          state.backups = state.backups.filter((b) => b.id !== id);
+          state.backups = state.backups.filter((b: BackupRecord) => b.id !== id);
         }),
 
       setMigration: (migration) =>

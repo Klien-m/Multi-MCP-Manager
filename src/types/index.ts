@@ -155,3 +155,9 @@ export interface AppConfig {
   showAdvanced: boolean;
   telemetryEnabled: boolean;
 }
+
+// Custom Directory Configuration Types
+export interface CustomDirectoryConfig {
+  customPaths: { [toolName: string]: string[] };
+  lastScanTime: string | null;
+}

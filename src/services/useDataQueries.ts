@@ -90,7 +90,7 @@ export const useSaveUserData = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: AppState) => {
+    mutationFn: async (data: AppState) => {
       storageService.saveUserData(data);
       return data;
     },
@@ -111,7 +111,7 @@ export const useCreateBackup = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       return storageService.backupUserData();
     },
     onSuccess: () => {
@@ -129,7 +129,7 @@ export const useRestoreBackup = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (backupId: string) => {
+    mutationFn: async (backupId: string) => {
       return storageService.restoreFromBackup(backupId);
     },
     onSuccess: () => {
@@ -150,7 +150,7 @@ export const useDeleteBackup = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (backupId: string) => {
+    mutationFn: async (backupId: string) => {
       return storageService.deleteBackup(backupId);
     },
     onSuccess: () => {
@@ -168,7 +168,7 @@ export const useImportMcpData = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (filePath: string) => {
+    mutationFn: async (filePath: string) => {
       return storageService.importMCPData(filePath);
     },
     onSuccess: () => {
@@ -184,7 +184,7 @@ export const useImportMcpData = () => {
  */
 export const useExportMcpData = () => {
   return useMutation({
-    mutationFn: ({ mcpIds, format }: { mcpIds: string[]; format?: 'json' | 'csv' }) => {
+    mutationFn: async ({ mcpIds, format }: { mcpIds: string[]; format?: 'json' | 'csv' }) => {
       return storageService.exportMCPData(mcpIds, format);
     },
   });

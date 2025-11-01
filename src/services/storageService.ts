@@ -1,6 +1,6 @@
-import { writeFileSync, readFileSync, existsSync, mkdirSync, readdirSync, unlinkSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { writeFileSync, readFileSync, existsSync, mkdirSync, readdirSync, unlinkSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { AppState, BackupData, ToolConfig, MCPData, VersionRecord, BackupRecord } from '../types';
 
 const __filename = fileURLToPath(import.meta.url);
