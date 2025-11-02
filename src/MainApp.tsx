@@ -16,6 +16,7 @@ import {
   Server,
   Settings
 } from 'lucide-react';
+import {Toaster} from "@/components/ui/sonner.tsx";
 
 export function MainApp() {
   const {
@@ -29,7 +30,6 @@ export function MainApp() {
     // 状态
     searchQuery,
     isLoading,
-    error,
     
     // 操作
     setSearchQuery,
@@ -154,13 +154,9 @@ export function MainApp() {
     reader.onload = (event) => {
       try {
         const imported = JSON.parse(event.target?.result as string);
-        const result = importConfigs(imported);
-        
-        if (!result.success) {
-          alert(result.message || "导入失败，请检查文件格式");
-        }
+        importConfigs(imported);
       } catch (e) {
-        alert("导入失败，请检查文件格式");
+        // 错误处理已集成到 importConfigs 函数中，使用 toast 显示
       }
     };
     reader.readAsText(file);
@@ -172,14 +168,11 @@ export function MainApp() {
     console.log('工具管理功能已迁移');
   };
 
-  const clearError = () => {
-    // 错误处理已集成到 useMCPManager 中
-    console.log('错误已清除');
-  };
 
   return (
     <div className="min-h-screen bg-background">
-      
+      <Toaster />
+
       {/* Header */}
       <div className="border-b bg-card">
         <div className="container mx-auto px-4 py-6">
@@ -225,15 +218,6 @@ export function MainApp() {
             </div>
           </div>
 
-          {/* Error display */}
-          {error && (
-            <Alert variant="destructive" className="mb-6">
-              <AlertDescription>{error}</AlertDescription>
-              <Button variant="outline" size="sm" onClick={clearError}>
-                清除
-              </Button>
-            </Alert>
-          )}
 
           {/* Stats */}
           <div className="flex gap-4">
@@ -299,7 +283,7 @@ export function MainApp() {
           <div className="text-center py-12">
             <Server className="size-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-muted-foreground mb-2">
-              {searchQuery ? "未找到匹配的配置" : `${currentTool?.name} 还没有配置`}
+              {searchQuery ? "未找到匹配的配置" : `${currentTool?.name || '当前工具'} 还没有配置`}
             </h3>
             {!searchQuery && (
               <Button onClick={handleNewConfig} variant="outline">

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
 import { useTauriStorage } from './useTauriStorage';
 import { mcpConfigService } from '../services/MCPConfigService';
 import { backupService } from '../services/BackupService';
@@ -38,7 +39,9 @@ export const useMCPManager = () => {
       }
     } catch (err) {
       console.error('Failed to load configs:', err);
-      setConfigsError('加载配置数据失败');
+      const errorMessage = '加载配置数据失败';
+      toast.error(errorMessage);
+      setConfigsError(errorMessage);
       setConfigs([]);
     } finally {
       setConfigsLoading(false);
@@ -59,7 +62,9 @@ export const useMCPManager = () => {
       }
     } catch (err) {
       console.error('Failed to load tools:', err);
-      setToolsError('加载工具数据失败');
+      const errorMessage = '加载工具数据失败';
+      toast.error(errorMessage);
+      setToolsError(errorMessage);
       setTools([]);
     } finally {
       setToolsLoading(false);
@@ -74,12 +79,16 @@ export const useMCPManager = () => {
       if (success) {
         setConfigs(configsData);
       } else {
-        setConfigsError('保存配置数据失败');
+        const errorMessage = '保存配置数据失败';
+        toast.error(errorMessage);
+        setConfigsError(errorMessage);
       }
       return success;
     } catch (err) {
       console.error('Failed to save configs:', err);
-      setConfigsError('保存配置数据失败');
+      const errorMessage = '保存配置数据失败';
+      toast.error(errorMessage);
+      setConfigsError(errorMessage);
       return false;
     }
   }, [writeJsonFile]);
@@ -92,12 +101,16 @@ export const useMCPManager = () => {
       if (success) {
         setTools(toolsData);
       } else {
-        setToolsError('保存工具数据失败');
+        const errorMessage = '保存工具数据失败';
+        toast.error(errorMessage);
+        setToolsError(errorMessage);
       }
       return success;
     } catch (err) {
       console.error('Failed to save tools:', err);
-      setToolsError('保存工具数据失败');
+      const errorMessage = '保存工具数据失败';
+      toast.error(errorMessage);
+      setToolsError(errorMessage);
       return false;
     }
   }, [writeJsonFile]);
@@ -105,7 +118,6 @@ export const useMCPManager = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedToolId, setSelectedToolId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   // 初始化数据
   useEffect(() => {
@@ -146,6 +158,11 @@ export const useMCPManager = () => {
 
   // 配置统计
   const configStats = mcpConfigService.getConfigStats();
+  
+  // 导入配置时的错误处理
+  const handleImportError = useCallback((message: string) => {
+    toast.error(message);
+  }, []);
 
   // 添加新配置
   const addConfig = useCallback((config: Omit<MCPConfig, 'id' | 'lastModified'>) => {
@@ -264,6 +281,9 @@ export const useMCPManager = () => {
       setTools(newTools);
       saveConfigs(newConfigs);
       saveTools(newTools);
+      toast.success('配置导入成功');
+    } else {
+      toast.error(result.message || '导入失败，请检查文件格式');
     }
     return result;
   }, [saveConfigs, saveTools]);
@@ -271,13 +291,14 @@ export const useMCPManager = () => {
   // 创建备份
   const createBackup = useCallback((name: string, description?: string) => {
     setIsLoading(true);
-    setError(null);
     
     try {
       const backupId = backupService.createBackup(name, description, tools, configs);
+      toast.success('备份创建成功');
       return { success: true, backupId };
     } catch (err) {
-      setError('创建备份失败');
+      const errorMessage = '创建备份失败';
+      toast.error(errorMessage);
       return { success: false, error: err instanceof Error ? err.message : '未知错误' };
     } finally {
       setIsLoading(false);
@@ -287,7 +308,6 @@ export const useMCPManager = () => {
   // 恢复备份
   const restoreBackup = useCallback((backupId: string) => {
     setIsLoading(true);
-    setError(null);
     
     try {
       const result = backupService.restoreBackup(backupId);
@@ -296,13 +316,16 @@ export const useMCPManager = () => {
         setConfigs(result.restoredData.configs);
         saveTools(result.restoredData.tools);
         saveConfigs(result.restoredData.configs);
+        toast.success('备份恢复成功');
         return { success: true };
       } else {
-        setError(result.error || '恢复备份失败');
+        const errorMessage = result.error || '恢复备份失败';
+        toast.error(errorMessage);
         return { success: false, error: result.error };
       }
     } catch (err) {
-      setError('恢复备份失败');
+      const errorMessage = '恢复备份失败';
+      toast.error(errorMessage);
       return { success: false, error: err instanceof Error ? err.message : '未知错误' };
     } finally {
       setIsLoading(false);
@@ -354,7 +377,6 @@ export const useMCPManager = () => {
     
     // 状态
     isLoading: isLoading || configsLoading || toolsLoading,
-    error: error || configsError || toolsError,
     
     // 搜索
     searchQuery,
@@ -385,6 +407,7 @@ export const useMCPManager = () => {
     
     // 统计信息
     configStats,
+    handleImportError,
     
     // 工具方法
     clearAllData,
