@@ -42,7 +42,7 @@ export function ConfigCard({ config, onToggle, onEdit, onCopy, onDelete }: Confi
             </div>
             <div className="flex-1 min-w-0">
               <CardTitle className="flex items-center gap-2">
-                <span className="truncate">{config.name}</span>
+                <span className="whitespace-normal break-words">{config.name}</span>
                 {config.enabled ? (
                   <Badge variant="default" className="bg-green-500 hover:bg-green-600">
                     <CheckCircle2 className="size-3 mr-1" />

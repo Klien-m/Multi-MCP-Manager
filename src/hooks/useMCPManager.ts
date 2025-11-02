@@ -4,6 +4,7 @@ import { useTauriStorage } from './useTauriStorage';
 import { mcpConfigService } from '../services/MCPConfigService';
 import { backupService } from '../services/BackupService';
 import { MCPConfig, AITool } from '../types';
+import {useLocalStorage} from "@/hooks/useLocalStorage.ts";
 
 /**
  * MCP 管理 Hook - 为 Components 提供统一的配置管理 API
@@ -13,9 +14,11 @@ export const useMCPManager = () => {
   const {
     readJsonFile,
     writeJsonFile,
+    getConfigKey,
+    getDataKey,
     isLoading: storageLoading,
     error: storageError
-  } = useTauriStorage();
+  } = useLocalStorage();
 
   // 状态管理
   const [configs, setConfigs] = useState<MCPConfig[]>([]);
@@ -31,7 +34,7 @@ export const useMCPManager = () => {
       setConfigsLoading(true);
       setConfigsError(null);
       
-      const configsData = await readJsonFile<MCPConfig[]>('mcp-configs.json');
+      const configsData = await readJsonFile<MCPConfig[]>(getConfigKey('mcp-configs.json'));
       if (configsData) {
         setConfigs(configsData);
       } else {
@@ -54,7 +57,7 @@ export const useMCPManager = () => {
       setToolsLoading(true);
       setToolsError(null);
       
-      const toolsData = await readJsonFile<AITool[]>('mcp-tools.json');
+      const toolsData = await readJsonFile<AITool[]>(getConfigKey('mcp-tools.json'));
       if (toolsData) {
         setTools(toolsData);
       } else {
@@ -75,7 +78,7 @@ export const useMCPManager = () => {
   const saveConfigs = useCallback(async (configsData: MCPConfig[]) => {
     try {
       setConfigsError(null);
-      const success = await writeJsonFile('mcp-configs.json', configsData);
+      const success = await writeJsonFile(getConfigKey('mcp-configs.json'), configsData);
       if (success) {
         setConfigs(configsData);
       } else {
@@ -97,7 +100,7 @@ export const useMCPManager = () => {
   const saveTools = useCallback(async (toolsData: AITool[]) => {
     try {
       setToolsError(null);
-      const success = await writeJsonFile('mcp-tools.json', toolsData);
+      const success = await writeJsonFile(getConfigKey('mcp-tools.json'), toolsData);
       if (success) {
         setTools(toolsData);
       } else {
@@ -127,25 +130,39 @@ export const useMCPManager = () => {
 
   // 初始化默认配置
   useEffect(() => {
-    if (configs.length === 0 && tools.length === 0 && !configsLoading && !toolsLoading) {
-      // 如果没有存储数据，使用默认配置
-      mcpConfigService.initializeDefaultConfigs();
-      const defaultConfigs = mcpConfigService.getAllConfigs();
-      const defaultTools = mcpConfigService.getAllTools();
+    if (configs.length === 0 && tools.length === 0 && !configsLoading && !toolsLoading && !storageLoading) {
+      // 如果没有存储数据且存储系统已初始化，使用默认配置
+      const initializeDefaultData = async () => {
+        try {
+          // 等待存储系统完全初始化
+          if (!storageLoading) {
+            mcpConfigService.initializeDefaultConfigs();
+            const defaultConfigs = mcpConfigService.getAllConfigs();
+            const defaultTools = mcpConfigService.getAllTools();
+            
+            // 延迟保存，确保目录完全准备好
+            setTimeout(async () => {
+              await saveConfigs(defaultConfigs);
+              await saveTools(defaultTools);
+              
+              // 设置默认选中的工具
+              const defaultTool = defaultTools[0];
+              if (defaultTool) {
+                setSelectedToolId(defaultTool.id);
+              }
+            }, 500);
+          }
+        } catch (err) {
+          console.error('Failed to initialize default data:', err);
+        }
+      };
       
-      saveConfigs(defaultConfigs);
-      saveTools(defaultTools);
-      
-      // 设置默认选中的工具
-      const defaultTool = defaultTools[0];
-      if (defaultTool) {
-        setSelectedToolId(defaultTool.id);
-      }
+      initializeDefaultData();
     } else if (tools.length > 0 && !selectedToolId && !toolsLoading) {
       // 如果有工具但没有选中，默认选中第一个
       setSelectedToolId(tools[0].id);
     }
-  }, [configs.length, tools.length, configsLoading, toolsLoading, selectedToolId, saveConfigs, saveTools]);
+  }, [configs.length, tools.length, configsLoading, toolsLoading, storageLoading, selectedToolId, saveConfigs, saveTools]);
 
   // 获取当前工具的配置
   const currentToolConfigs = configs.filter(config => config.toolId === selectedToolId);
@@ -168,8 +185,11 @@ export const useMCPManager = () => {
   const addConfig = useCallback((config: Omit<MCPConfig, 'id' | 'lastModified'>) => {
     const newConfig = mcpConfigService.addConfig(config);
     const newConfigs = [...configs, newConfig];
-    setConfigs(newConfigs);
-    saveConfigs(newConfigs);
+    saveConfigs(newConfigs).then(success => {
+      if (success) {
+        toast.success('配置创建成功');
+      }
+    });
     return newConfig;
   }, [configs, saveConfigs]);
 
@@ -180,8 +200,11 @@ export const useMCPManager = () => {
       const newConfigs = configs.map(config =>
         config.id === updatedConfig.id ? updatedConfig : config
       );
-      setConfigs(newConfigs);
-      saveConfigs(newConfigs);
+      saveConfigs(newConfigs).then(saveSuccess => {
+        if (saveSuccess) {
+          toast.success('配置更新成功');
+        }
+      });
     }
     return success;
   }, [configs, saveConfigs]);
@@ -191,8 +214,11 @@ export const useMCPManager = () => {
     const success = mcpConfigService.deleteConfig(id);
     if (success) {
       const newConfigs = configs.filter(config => config.id !== id);
-      setConfigs(newConfigs);
-      saveConfigs(newConfigs);
+      saveConfigs(newConfigs).then(saveSuccess => {
+        if (saveSuccess) {
+          toast.success('配置删除成功');
+        }
+      });
     }
     return success;
   }, [configs, saveConfigs]);
@@ -203,7 +229,6 @@ export const useMCPManager = () => {
     if (success) {
       // 重新获取配置数据
       const newConfigs = mcpConfigService.getAllConfigs();
-      setConfigs(newConfigs);
       saveConfigs(newConfigs);
     }
     return success;
@@ -213,11 +238,8 @@ export const useMCPManager = () => {
   const toggleConfig = useCallback((id: string) => {
     const success = mcpConfigService.toggleConfig(id);
     if (success) {
-      const newConfigs = configs.map(config =>
-        config.id === id ? { ...config, enabled: !config.enabled } : config
-      );
-      setConfigs(newConfigs);
-      saveConfigs(newConfigs);
+      const config = mcpConfigService.getAllConfigs()
+      saveConfigs(config);
     }
     return success;
   }, [configs, saveConfigs]);
@@ -225,11 +247,10 @@ export const useMCPManager = () => {
   // 添加新工具
   const addTool = useCallback((tool: Omit<AITool, 'id'>) => {
     const newTool = mcpConfigService.addTool(tool);
-    const newTools = [...tools, newTool];
-    setTools(newTools);
+    const newTools = mcpConfigService.getAllTools();
     saveTools(newTools);
     return newTool;
-  }, [tools, saveTools]);
+  }, [saveTools]);
 
   // 更新工具
   const updateTool = useCallback((updatedTool: AITool) => {
@@ -238,7 +259,6 @@ export const useMCPManager = () => {
       const newTools = tools.map(tool =>
         tool.id === updatedTool.id ? updatedTool : tool
       );
-      setTools(newTools);
       saveTools(newTools);
     }
     return success;
@@ -251,8 +271,6 @@ export const useMCPManager = () => {
       const newTools = tools.filter(tool => tool.id !== id);
       const newConfigs = configs.filter(config => config.toolId !== id);
       
-      setTools(newTools);
-      setConfigs(newConfigs);
       saveTools(newTools);
       saveConfigs(newConfigs);
       
@@ -266,6 +284,54 @@ export const useMCPManager = () => {
     return success;
   }, [tools, configs, selectedToolId, saveTools, saveConfigs]);
 
+  // 保存工具列表（用于 ToolManager）
+  const saveToolsList = useCallback((updatedTools: AITool[]) => {
+    try {
+      // 验证工具数据
+      const emptyNames = updatedTools.filter(tool => !tool.name?.trim());
+      if (emptyNames.length > 0) {
+        toast.error('所有工具必须有名称');
+        return false;
+      }
+
+      const names = updatedTools.map(tool => tool.name.trim());
+      const duplicates = names.filter((name, index) => names.indexOf(name) !== index);
+      if (duplicates.length > 0) {
+        toast.error('工具名称不能重复');
+        return false;
+      }
+
+      // 更新 MCP 配置服务中的工具数据
+      // 先删除所有旧工具，再添加新工具
+      const currentTools = mcpConfigService.getAllTools();
+      currentTools.forEach(tool => {
+        mcpConfigService.deleteTool(tool.id);
+      });
+      
+      updatedTools.forEach(tool => {
+        mcpConfigService.addTool(tool);
+      });
+      
+      // 保存到文件系统
+      const savePromise = saveTools(updatedTools);
+      savePromise.then(success => {
+        if (success) {
+          toast.success('工具配置保存成功');
+        } else {
+          toast.error('保存工具配置失败');
+        }
+      }).catch(() => {
+        toast.error('保存工具配置失败');
+      });
+      
+      return savePromise;
+    } catch (err) {
+      console.error('Failed to save tools:', err);
+      toast.error('保存工具配置失败');
+      return false;
+    }
+  }, [saveTools]);
+
   // 导出配置
   const exportConfigs = useCallback((toolId?: string) => {
     return mcpConfigService.exportData(toolId);
@@ -277,8 +343,6 @@ export const useMCPManager = () => {
     if (result.success) {
       const newConfigs = mcpConfigService.getAllConfigs();
       const newTools = mcpConfigService.getAllTools();
-      setConfigs(newConfigs);
-      setTools(newTools);
       saveConfigs(newConfigs);
       saveTools(newTools);
       toast.success('配置导入成功');
@@ -312,8 +376,6 @@ export const useMCPManager = () => {
     try {
       const result = backupService.restoreBackup(backupId);
       if (result.success && result.restoredData) {
-        setTools(result.restoredData.tools);
-        setConfigs(result.restoredData.configs);
         saveTools(result.restoredData.tools);
         saveConfigs(result.restoredData.configs);
         toast.success('备份恢复成功');
@@ -394,6 +456,7 @@ export const useMCPManager = () => {
     addTool,
     updateTool,
     deleteTool,
+    saveToolsList,
     
     // 文件操作
     exportConfigs,

@@ -106,11 +106,11 @@ export function ToolManager({ tools, open, onClose, onSave }: ToolManagerProps) 
                     <div className="space-y-2">
                       <Label>图标</Label>
                       <Select
-                        value={tool.name || "default"}
-                        onValueChange={(value) => handleUpdateTool(tool.id, "name", value)}
+                        value={tool.icon || "default"}
+                        onValueChange={(value) => handleUpdateTool(tool.id, "icon", value)}
                       >
                         <SelectTrigger>
-                          <SelectValue />
+                          <SelectValue placeholder="选择图标" />
                         </SelectTrigger>
                         <SelectContent>
                           {ICON_OPTIONS.map(option => (

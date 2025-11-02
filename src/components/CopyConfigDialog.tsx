@@ -95,12 +95,6 @@ export function CopyConfigDialog({ sourceConfig, allConfigs, tools, open, onClos
               <div className="space-y-2">
                 <Label>目标工具</Label>
                 <RadioGroup value={targetToolId || sourceConfig?.toolId} onValueChange={handleToolChange}>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value={sourceConfig?.toolId || ""} id="same-tool" />
-                    <Label htmlFor="same-tool" className="cursor-pointer">
-                      同一工具内 ({sourceTool?.name})
-                    </Label>
-                  </div>
                   {tools.filter(t => t.id !== sourceConfig?.toolId).map(tool => (
                     <div key={tool.id} className="flex items-center space-x-2">
                       <RadioGroupItem value={tool.id} id={`tool-${tool.id}`} />

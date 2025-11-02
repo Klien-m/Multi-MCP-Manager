@@ -6,7 +6,7 @@ import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Alert, AlertDescription } from "./ui/alert";
 import { AlertCircle } from "lucide-react";
-import { MCPConfig } from "./ConfigCard";
+import { MCPConfig } from "../types";
 
 interface ConfigEditorProps {
   config: MCPConfig | null;

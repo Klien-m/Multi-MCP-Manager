@@ -17,6 +17,7 @@ import {
   Settings
 } from 'lucide-react';
 import {Toaster} from "@/components/ui/sonner.tsx";
+import { AITool } from './types';
 
 export function MainApp() {
   const {
@@ -40,7 +41,8 @@ export function MainApp() {
     copyConfig,
     toggleConfig,
     exportConfigs,
-    importConfigs
+    importConfigs,
+    saveToolsList
   } = useMCPManager();
 
   // 本地状态管理
@@ -76,16 +78,24 @@ export function MainApp() {
   };
 
   const handleSave = (config: any) => {
-    if (config.id.startsWith('mcp-')) {
-      updateConfig(config);
-    } else {
+    console.log('📝 ConfigEditor 调用 handleSave:', config, 'isNew:', isNewConfig);
+    
+    if (isNewConfig) {
+      // 创建新配置
+      console.log('📝 调用 addConfig');
       addConfig({
         name: config.name,
         enabled: config.enabled,
         config: config.config,
         toolId: config.toolId
       });
+    } else {
+      // 更新现有配置
+      console.log('📝 调用 updateConfig');
+      updateConfig(config);
     }
+    
+    // 立即关闭编辑器
     setIsEditorOpen(false);
   };
 
@@ -153,9 +163,12 @@ export function MainApp() {
     e.target.value = '';
   };
 
-  const handleSaveTools = (updatedTools: any[]) => {
-    // 工具管理功能已集成到 useMCPManager 中
-    console.log('工具管理功能已迁移');
+  const handleSaveTools = async (updatedTools: AITool[]) => {
+    const success = await saveToolsList(updatedTools);
+    if (success) {
+      // 工具保存成功后的处理
+      console.log('工具配置保存成功');
+    }
   };
 
 
