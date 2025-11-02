@@ -1,59 +1,98 @@
-import React, { useEffect } from 'react';
-import { useAppStore } from '../store/appStore';
-import { useUserData } from '../services/useDataQueries';
-import { storageService } from '../services/storageService';
+import React, { useState } from 'react';
+import { useTauriDataPersistence } from '../hooks/useTauriDataPersistence';
+import { ToolConfig } from '../types';
+
+export interface MCPConfig {
+  id: string;
+  name: string;
+  enabled: boolean;
+  config: Record<string, any>;
+  lastModified: string;
+  toolId: string; // 所属的 AI 工具
+}
+
+export interface AITool {
+  id: string;
+  name: string;
+  icon: string;
+  configPath?: string;
+}
+
+interface AppContextType {
+  tools: ToolConfig[];
+  selectedToolId: string;
+  configs: MCPConfig[];
+  setTools: (tools: ToolConfig[]) => void;
+  setSelectedToolId: (id: string) => void;
+  setConfigs: (configs: MCPConfig[]) => void;
+  addConfig: (config: MCPConfig) => Promise<boolean>;
+  updateConfig: (config: MCPConfig) => Promise<boolean>;
+  deleteConfig: (id: string) => Promise<boolean>;
+  toggleConfig: (id: string) => Promise<boolean>;
+  isLoading: boolean;
+  error: string | null;
+  exportData: () => Promise<string | null>;
+  importData: (dataString: string) => Promise<boolean>;
+  resetData: () => Promise<boolean>;
+  clearError: () => void;
+}
+
+const AppContext = React.createContext<AppContextType | undefined>(undefined);
 
 interface AppProviderProps {
   children: React.ReactNode;
 }
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
-  const { setMcpCollections, setToolConfigs, setVersions, setBackups, setLoading, setError } = useAppStore();
-  const { data: userData, isLoading, error, refetch } = useUserData();
+  const [selectedToolId, setSelectedToolId] = useState<string>("");
+  const {
+    tools,
+    configs,
+    setTools,
+    setConfigs,
+    addConfig,
+    updateConfig,
+    deleteConfig,
+    toggleConfig,
+    isLoading,
+    error,
+    exportData,
+    importData,
+    resetData,
+    clearError
+  } = useTauriDataPersistence();
 
-  useEffect(() => {
-    setLoading(isLoading);
-    if (error) {
-      setError(error.message);
-    }
-  }, [isLoading, error, setLoading, setError]);
+  const contextValue: AppContextType = {
+    tools,
+    selectedToolId,
+    configs,
+    setTools,
+    setSelectedToolId,
+    setConfigs,
+    addConfig,
+    updateConfig,
+    deleteConfig,
+    toggleConfig,
+    isLoading,
+    error,
+    exportData,
+    importData,
+    resetData,
+    clearError
+  };
 
-  useEffect(() => {
-    if (userData) {
-      setMcpCollections(userData.mcpCollections);
-      setToolConfigs(userData.toolConfigs);
-      setVersions(userData.versions);
-      setBackups(userData.backups);
-      setError(undefined);
-    }
-  }, [userData, setMcpCollections, setToolConfigs, setVersions, setBackups, setError]);
+  return (
+    <AppContext.Provider value={contextValue}>
+      {children}
+    </AppContext.Provider>
+  );
+};
 
-  // Initialize app data if no user data exists
-  useEffect(() => {
-    if (!userData && !isLoading) {
-      // Initialize with default data or try to load from storage
-      storageService.loadUserData().then(storedData => {
-        if (storedData) {
-          setMcpCollections(storedData.mcpCollections);
-          setToolConfigs(storedData.toolConfigs);
-          setVersions(storedData.versions);
-          setBackups(storedData.backups);
-        } else {
-          // Initialize with empty default data to ensure Dashboard works
-          setMcpCollections([]);
-          setToolConfigs([]);
-          setVersions([]);
-          setBackups([]);
-        }
-      }).catch(error => {
-        console.error('Failed to load stored data:', error);
-        setMcpCollections([]);
-        setToolConfigs([]);
-        setVersions([]);
-        setBackups([]);
-      });
-    }
-  }, [userData, isLoading, setMcpCollections, setToolConfigs, setVersions, setBackups]);
-
-  return <>{children}</>;
+// Custom hook to use the app context
+export const useAppContext = () => {
+  const context = React.useContext(AppContext);
+  if (context === undefined) {
+    throw new Error('useAppContext must be used within an AppProvider');
+  }
+  return context;
 };

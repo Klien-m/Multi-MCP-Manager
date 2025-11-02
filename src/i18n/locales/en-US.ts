@@ -44,38 +44,18 @@ const enUS = {
 
   // Navigation
   navigation: {
-    dashboard: 'Dashboard',
     mcpManager: 'MCP Manager',
     aiTools: 'AI Tools',
-    migration: 'Migration',
-    settings: 'Settings'
+    migration: 'Migration'
   },
 
   // Page titles
   pages: {
-    dashboard: 'Dashboard',
     mcpManager: 'MCP Manager',
     toolConfig: 'Tool Configuration',
-    migration: 'Migration',
-    settings: 'Settings'
+    migration: 'Migration'
   },
 
-  // Dashboard page
-  dashboard: {
-    title: 'Dashboard',
-    refresh: 'Refresh',
-    totalMCPs: 'Total MCPs',
-    aiTools: 'AI Tools',
-    backups: 'Backups',
-    storageUsed: 'Storage Used',
-    recentActivity: 'Recent Activity',
-    quickActions: 'Quick Actions',
-    importMCPData: 'Import MCP Data',
-    createBackup: 'Create Backup',
-    configureTools: 'Configure Tools',
-    completed: 'Completed',
-    hoursAgo: 'hours ago'
-  },
 
   // MCP Manager
   mcpManager: {
@@ -162,34 +142,6 @@ const enUS = {
     mcp: 'MCP'
   },
 
-  // Settings page
-  settings: {
-    title: 'Settings',
-    description: 'Configure preferences for MCP Unified Manager',
-    general: 'General Settings',
-    theme: 'Theme',
-    light: 'Light',
-    dark: 'Dark',
-    system: 'System',
-    defaultExportFormat: 'Default Export Format',
-    showAdvancedOptions: 'Show Advanced Options',
-    showAdvancedOptionsDescription: 'Enable additional advanced configuration options',
-    backup: 'Backup Settings',
-    autoBackup: 'Auto Backup',
-    autoBackupDescription: 'Automatically create data backups on a schedule',
-    backupInterval: 'Backup Interval (hours)',
-    notifications: 'Notification Settings',
-    enableNotifications: 'Enable Notifications',
-    enableNotificationsDescription: 'Receive notifications for important events',
-    advanced: 'Advanced Settings',
-    enableTelemetry: 'Enable Telemetry',
-    telemetryDescription: 'Send anonymous usage data to help improve the product',
-    saveSettings: 'Save Settings',
-    saveSettingsSuccess: 'Settings saved successfully!',
-    saveSettingsError: 'Failed to save settings, please try again.',
-    saving: 'Saving...',
-    reset: 'Reset'
-  },
 
   // Errors and status
   errors: {

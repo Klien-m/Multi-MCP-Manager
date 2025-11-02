@@ -45,38 +45,18 @@ const zhCN = {
 
   // 导航
   navigation: {
-    dashboard: '仪表板',
     mcpManager: 'MCP管理器',
     aiTools: 'AI工具',
-    migration: '数据迁移',
-    settings: '设置'
+    migration: '数据迁移'
   },
 
   // 页面标题
   pages: {
-    dashboard: '仪表板',
     mcpManager: 'MCP管理器',
     toolConfig: '工具配置',
-    migration: '数据迁移',
-    settings: '设置'
+    migration: '数据迁移'
   },
 
-  // Dashboard页面
-  dashboard: {
-    title: '仪表板',
-    refresh: '刷新',
-    totalMCPs: 'MCP总数',
-    aiTools: 'AI工具',
-    backups: '备份',
-    storageUsed: '已用存储',
-    recentActivity: '最近活动',
-    quickActions: '快速操作',
-    importMCPData: '导入MCP数据',
-    createBackup: '创建备份',
-    configureTools: '配置工具',
-    completed: '已完成',
-    hoursAgo: '小时前'
-  },
 
   // MCP管理器
   mcpManager: {
@@ -165,39 +145,6 @@ const zhCN = {
   },
 
   // 设置页面
-  settings: {
-    title: '设置',
-    description: '配置MCP统一管理器的偏好设置',
-    general: '常规设置',
-    theme: '主题',
-    light: '浅色主题',
-    dark: '深色主题',
-    system: '跟随系统',
-    defaultExportFormat: '默认导出格式',
-    showAdvancedOptions: '显示高级选项',
-    showAdvancedOptionsDescription: '启用更多高级配置选项',
-    backup: '备份设置',
-    autoBackup: '自动备份',
-    autoBackupDescription: '定期自动创建数据备份',
-    backupInterval: '备份间隔 (小时)',
-    everyHour: '每小时',
-    every6Hours: '每6小时',
-    every12Hours: '每12小时',
-    daily: '每天',
-    every2Days: '每2天',
-    weekly: '每周',
-    notifications: '通知设置',
-    enableNotifications: '启用通知',
-    enableNotificationsDescription: '接收重要事件的通知',
-    advanced: '高级设置',
-    enableTelemetry: '启用遥测',
-    telemetryDescription: '发送匿名使用数据以帮助改进产品',
-    saveSettings: '保存设置',
-    saveSettingsSuccess: '设置保存成功！',
-    saveSettingsError: '保存设置时出错，请重试。',
-    saving: '保存中...',
-    reset: '重置'
-  },
 
   // 错误和状态
   errors: {

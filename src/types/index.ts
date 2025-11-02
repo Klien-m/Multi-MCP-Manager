@@ -115,49 +115,8 @@ export interface AppState {
   aiConfig: AIConfig;
 }
 
-// API Response Types
-export interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
-}
-
 export interface ValidationResult {
   isValid: boolean;
   errors: string[];
   warnings: string[];
-}
-
-// File System Types
-export interface FileSystemItem {
-  name: string;
-  path: string;
-  isDirectory: boolean;
-  size?: number;
-  modifiedAt?: string;
-}
-
-// Event Types
-export interface AppEvent {
-  type: string;
-  payload: any;
-  timestamp: string;
-  source: string;
-}
-
-// Configuration Types
-export interface AppConfig {
-  theme: 'light' | 'dark' | 'system';
-  language: string;
-  autoBackup: boolean;
-  backupPath: string;
-  showAdvanced: boolean;
-  telemetryEnabled: boolean;
-}
-
-// Custom Directory Configuration Types
-export interface CustomDirectoryConfig {
-  customPaths: { [toolName: string]: string[] };
-  lastScanTime: string | null;
 }
