@@ -7,13 +7,13 @@ import { Alert, AlertDescription } from "./ui/alert";
 import { Card, CardContent } from "./ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Trash2, Plus, AlertCircle } from "lucide-react";
-import { ToolConfig } from "../types";
+import { AITool } from "../types";
 
 interface ToolManagerProps {
-  tools: ToolConfig[];
+  tools: AITool[];
   open: boolean;
   onClose: () => void;
-  onSave: (tools: ToolConfig[]) => void;
+  onSave: (tools: AITool[]) => void;
 }
 
 const ICON_OPTIONS = [
@@ -23,7 +23,7 @@ const ICON_OPTIONS = [
 ];
 
 export function ToolManager({ tools, open, onClose, onSave }: ToolManagerProps) {
-  const [editingTools, setEditingTools] = useState<ToolConfig[]>([]);
+  const [editingTools, setEditingTools] = useState<AITool[]>([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -34,18 +34,16 @@ export function ToolManager({ tools, open, onClose, onSave }: ToolManagerProps) 
   }, [tools, open]);
 
   const handleAddTool = () => {
-    const newTool: ToolConfig = {
+    const newTool: AITool = {
       id: `tool-${Date.now()}`,
       name: "",
-      displayName: "",
+      icon: "",
       defaultPath: "",
-      supportedFormats: ['json'],
-      isActive: true
     };
     setEditingTools([...editingTools, newTool]);
   };
 
-  const handleUpdateTool = (id: string, field: keyof ToolConfig, value: string) => {
+  const handleUpdateTool = (id: string, field: keyof AITool, value: string) => {
     setEditingTools(prev =>
       prev.map(tool =>
         tool.id === id ? { ...tool, [field]: value } : tool
@@ -108,8 +106,8 @@ export function ToolManager({ tools, open, onClose, onSave }: ToolManagerProps) 
                     <div className="space-y-2">
                       <Label>图标</Label>
                       <Select
-                        value={tool.displayName || "default"}
-                        onValueChange={(value) => handleUpdateTool(tool.id, "displayName", value)}
+                        value={tool.name || "default"}
+                        onValueChange={(value) => handleUpdateTool(tool.id, "name", value)}
                       >
                         <SelectTrigger>
                           <SelectValue />

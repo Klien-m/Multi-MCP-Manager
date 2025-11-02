@@ -1,4 +1,4 @@
-import { ToolConfig, AITool } from '../types';
+import { AITool } from '../types';
 import { DEFAULT_TOOLS, DEFAULT_TOOL_IDS, MCP_CONFIG_SUGGESTIONS } from '../test-data/default-configs';
 
 /**

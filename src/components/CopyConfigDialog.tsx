@@ -6,13 +6,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Alert, AlertDescription } from "./ui/alert";
 import { CheckCircle2 } from "lucide-react";
 import { MCPConfig } from "./ConfigCard";
-import { ToolConfig } from "../types";
+import { AITool } from "../types";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
 interface CopyConfigDialogProps {
   sourceConfig: MCPConfig | null;
   allConfigs: MCPConfig[];
-  tools: ToolConfig[];
+  tools: AITool[];
   open: boolean;
   onClose: () => void;
   onCopy: (sourceId: string, targetId: string) => void;

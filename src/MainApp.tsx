@@ -51,16 +51,6 @@ export function MainApp() {
   const [isCopyDialogOpen, setIsCopyDialogOpen] = useState(false);
   const [isToolManagerOpen, setIsToolManagerOpen] = useState(false);
 
-  // 将 AITool 转换为 ToolConfig 以兼容现有组件
-  const toolConfigs = tools.map(tool => ({
-    id: tool.id,
-    name: tool.name,
-    displayName: tool.icon || 'default',
-    defaultPath: tool.configPath || '',
-    supportedFormats: ['json'],
-    isActive: true
-  }));
-
   // 计算属性
   const configCounts = tools.reduce((acc, tool) => {
     const toolConfigs = configs.filter(c => c.toolId === tool.id);
@@ -256,7 +246,7 @@ export function MainApp() {
 
       {/* Tool Selector */}
       <ToolSelector
-        tools={toolConfigs}
+        tools={tools}
         selectedToolId={selectedToolId}
         onSelectTool={setSelectedToolId}
         onManageTools={() => setIsToolManagerOpen(true)}
@@ -321,14 +311,14 @@ export function MainApp() {
       <CopyConfigDialog
         sourceConfig={copyingConfig}
         allConfigs={configs}
-        tools={toolConfigs}
+        tools={tools}
         open={isCopyDialogOpen}
         onClose={() => setIsCopyDialogOpen(false)}
         onCopy={handleCopyConfirm}
       />
 
       <ToolManager
-        tools={toolConfigs}
+        tools={tools}
         open={isToolManagerOpen}
         onClose={() => setIsToolManagerOpen(false)}
         onSave={handleSaveTools}

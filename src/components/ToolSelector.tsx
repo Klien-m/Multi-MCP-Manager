@@ -7,10 +7,10 @@ import {
   Pencil
 } from "lucide-react";
 import { Badge } from "./ui/badge";
-import { ToolConfig } from "../types";
+import { AITool } from "../types";
 
 export interface ToolSelectorProps {
-  tools: ToolConfig[];
+  tools: AITool[];
   selectedToolId: string;
   onSelectTool: (toolId: string) => void;
   onManageTools: () => void;
