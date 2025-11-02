@@ -5,6 +5,8 @@ import { ConfigEditor } from './components/ConfigEditor';
 import { CopyConfigDialog } from './components/CopyConfigDialog';
 import { ToolSelector } from './components/ToolSelector';
 import { ToolManager } from './components/ToolManager';
+import { ToolScanToolbar } from './components/ToolScanToolbar';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './components/ui/dialog';
 import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
 import { Alert, AlertDescription } from './components/ui/alert';
@@ -52,6 +54,7 @@ export function MainApp() {
   const [copyingConfig, setCopyingConfig] = useState(null);
   const [isCopyDialogOpen, setIsCopyDialogOpen] = useState(false);
   const [isToolManagerOpen, setIsToolManagerOpen] = useState(false);
+  const [isScanDialogOpen, setIsScanDialogOpen] = useState(false);
 
   // 计算属性
   const configCounts = tools.reduce((acc, tool) => {
@@ -218,6 +221,14 @@ export function MainApp() {
                 <Plus className="size-4 mr-2" />
                 新建配置
               </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsScanDialogOpen(true)}
+              >
+                <Search className="size-4 mr-2" />
+                AI扫描
+              </Button>
             </div>
           </div>
 
@@ -336,6 +347,19 @@ export function MainApp() {
         onClose={() => setIsToolManagerOpen(false)}
         onSave={handleSaveTools}
       />
+
+      {/* 扫描对话框 */}
+      <Dialog open={isScanDialogOpen} onOpenChange={setIsScanDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>AI工具扫描</DialogTitle>
+            <DialogDescription>
+              扫描本地AI工具的MCP配置文件并自动转换为项目支持的格式
+            </DialogDescription>
+          </DialogHeader>
+          <ToolScanToolbar supportedTools={tools} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

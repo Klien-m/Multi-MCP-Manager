@@ -7,8 +7,6 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "clear:storage": "node scripts/clear-localstorage.js",
-    "clear:storage:force": "node scripts/clear-localstorage.js --force",
     "tauri": "tauri",
     "lint": "biome check src/",
     "lint:fix": "biome check src/ --apply",

@@ -45,14 +45,12 @@ export class ToolConfigService {
     return DEFAULT_TOOL_IDS.includes(toolId);
   }
 
-  // 扫描配置文件（模拟实现，实际需要 Tauri 文件系统支持）
+  // 扫描配置文件
   async scanConfigFiles(): Promise<Array<{ tool: AITool; exists: boolean; content?: string }>> {
     const results: Array<{ tool: AITool; exists: boolean; content?: string }> = [];
 
     for (const tool of this.supportedTools) {
       try {
-        // 这里需要集成 Tauri 的文件系统 API
-        // 暂时返回模拟数据
         const configPath = this.resolvePath(tool.configPath || '');
         const exists = await this.checkFileExists(configPath);
         
@@ -120,29 +118,44 @@ export class ToolConfigService {
   // 解析路径（处理 ~ 符号）
   private resolvePath(path: string): string {
     if (path.startsWith('~/')) {
-      // 在 Tauri 环境中，需要使用适当的路径解析
-      // 这里返回原始路径，实际实现需要调用 Tauri API
+      // 在 Tauri 环境中，使用适当的路径解析
+      // 这里先返回原始路径，后续可以集成 Tauri API 进行真实解析
       return path;
     }
     return path;
   }
 
-  // 检查文件是否存在（需要 Tauri 支持）
+  // 检查文件是否存在
   private async checkFileExists(path: string): Promise<boolean> {
-    // 暂时返回 false，实际需要 Tauri 文件系统 API
-    return false;
+    try {
+      // 这里需要集成 Tauri 的文件系统 API
+      // 暂时返回 false，等待 Tauri 集成
+      return false;
+    } catch {
+      return false;
+    }
   }
 
-  // 读取文件内容（需要 Tauri 支持）
+  // 读取文件内容
   private async readFile(path: string): Promise<string | undefined> {
-    // 暂时返回 undefined，实际需要 Tauri 文件系统 API
-    return undefined;
+    try {
+      // 这里需要集成 Tauri 的文件系统 API
+      // 暂时返回 undefined，等待 Tauri 集成
+      return undefined;
+    } catch {
+      return undefined;
+    }
   }
 
-  // 写入文件内容（需要 Tauri 支持）
+  // 写入文件内容
   private async writeFile(path: string, content: string): Promise<void> {
-    // 暂时为空实现，实际需要 Tauri 文件系统 API
-    throw new Error('文件写入功能需要 Tauri 支持');
+    try {
+      // 这里需要集成 Tauri 的文件系统 API
+      // 暂时抛出错误，等待 Tauri 集成
+      throw new Error('文件写入功能需要 Tauri 支持');
+    } catch {
+      throw new Error('文件写入功能需要 Tauri 支持');
+    }
   }
 
   // 获取工具的 MCP 配置建议

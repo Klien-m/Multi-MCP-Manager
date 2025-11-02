@@ -1,3 +1,6 @@
+/* 自定义弹窗动画 */
+@import './dialog-animations.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

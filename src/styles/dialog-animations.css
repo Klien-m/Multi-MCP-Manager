@@ -1,0 +1,61 @@
+/* 自定义弹窗动画 - 从中心淡入淡出，避免从右下角出现 */
+
+@keyframes center-fade-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale3d(0.95, 0.95, 0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+  }
+}
+
+@keyframes center-fade-out {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale3d(0.95, 0.95, 0.95);
+  }
+}
+
+/* 自定义弹窗进入动画 - 从中心淡入 */
+.animate-in-center {
+  animation-name: center-fade-in;
+  animation-duration: 200ms;
+  animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation-fill-mode: both;
+}
+
+/* 自定义弹窗退出动画 - 向中心淡出 */
+.animate-out-center {
+  animation-name: center-fade-out;
+  animation-duration: 150ms;
+  animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation-fill-mode: both;
+}
+
+/* 确保弹窗内容居中显示 */
+.dialog-content-center {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* 覆盖默认的 slide-in 动画，防止从右下角出现 */
+.slide-in-from-right,
+.slide-in-from-bottom,
+.slide-in-from-left,
+.slide-in-from-top {
+  animation-name: center-fade-in !important;
+}
+
+.slide-out-to-right,
+.slide-out-to-bottom,
+.slide-out-to-left,
+.slide-out-to-top {
+  animation-name: center-fade-out !important;
+}

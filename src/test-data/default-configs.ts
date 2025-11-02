@@ -24,8 +24,113 @@ export const DEFAULT_TOOLS: AITool[] = [
     name: "KiloCode",
     icon: "kilocode",
     configPath: "~/.kilocode/mcp.json"
+  },
+  {
+    id: "github-copilot",
+    name: "GitHub Copilot",
+    icon: "github",
+    configPath: "~/.config/gh/gh.json"
+  },
+  {
+    id: "tabnine",
+    name: "Tabnine",
+    icon: "tabnine",
+    configPath: "~/.tabnine/config.json"
+  },
+  {
+    id: "continue",
+    name: "Continue",
+    icon: "continue",
+    configPath: "~/.continue/config.json"
+  },
+  {
+    id: "codeium",
+    name: "Codeium",
+    icon: "codeium",
+    configPath: "~/.codeium/config.json"
   }
 ];
+
+// 扩展的AI工具扫描配置
+export const EXTENDED_TOOL_SCAN_CONFIGS = {
+  // Cursor 相关配置
+  cursor: {
+    name: "Cursor",
+    patterns: ["mcp.json", "cursor.json"],
+    paths: [
+      "~/.cursor/mcp.json",
+      "~/.cursor/cursor.json",
+      "~/Library/Application Support/Cursor/mcp.json"
+    ],
+    mcpPatterns: ["@modelcontextprotocol"]
+  },
+  
+  // Claude Desktop 相关配置
+  claude: {
+    name: "Claude Desktop",
+    patterns: ["claude_desktop_config.json", "claude.json"],
+    paths: [
+      "~/Library/Application Support/Claude/claude_desktop_config.json",
+      "~/.claude/claude.json"
+    ],
+    mcpPatterns: ["mcpServers", "mcp-servers"]
+  },
+  
+  // KiloCode 相关配置
+  kilocode: {
+    name: "KiloCode",
+    patterns: ["mcp.json", "kilocode.json"],
+    paths: [
+      "~/.kilocode/mcp.json",
+      "~/.kilocode/kilocode.json"
+    ],
+    mcpPatterns: ["@modelcontextprotocol"]
+  },
+  
+  // GitHub Copilot 相关配置
+  "github-copilot": {
+    name: "GitHub Copilot",
+    patterns: ["gh.json", "copilot.json"],
+    paths: [
+      "~/.config/gh/gh.json",
+      "~/.config/github-copilot/copilot.json"
+    ],
+    mcpPatterns: ["mcp", "modelContextProtocol"]
+  },
+  
+  // Tabnine 相关配置
+  tabnine: {
+    name: "Tabnine",
+    patterns: ["config.json", "tabnine.json"],
+    paths: [
+      "~/.tabnine/config.json",
+      "~/.config/tabnine/config.json"
+    ],
+    mcpPatterns: ["mcp", "modelContextProtocol"]
+  },
+  
+  // Continue 相关配置
+  continue: {
+    name: "Continue",
+    patterns: ["config.json", "continue.json"],
+    paths: [
+      "~/.continue/config.json",
+      "~/.config/continue/config.json"
+    ],
+    mcpPatterns: ["mcpServers", "mcp-servers"]
+  },
+  
+  // Codeium 相关配置
+  codeium: {
+    name: "Codeium",
+    patterns: ["config.json", "codeium.json"],
+    paths: [
+      "~/.codeium/config.json",
+      "~/.config/codeium/config.json"
+    ],
+    mcpPatterns: ["mcp", "modelContextProtocol"]
+  }
+};
 
 // 默认的MCP配置列表
 export const DEFAULT_MCP_CONFIGS: MCPConfig[] = [
@@ -96,7 +201,7 @@ export const DEFAULT_MCP_CONFIGS: MCPConfig[] = [
 ];
 
 // 默认工具ID列表（用于判断是否为默认工具）
-export const DEFAULT_TOOL_IDS: string[] = ['cursor', 'claude', 'kilocode'];
+export const DEFAULT_TOOL_IDS: string[] = ['cursor', 'claude', 'kilocode', 'github-copilot', 'tabnine', 'continue', 'codeium'];
 
 // MCP配置建议模板
 export const MCP_CONFIG_SUGGESTIONS = {
@@ -161,6 +266,96 @@ export const MCP_CONFIG_SUGGESTIONS = {
         command: 'npx',
         args: ['-y', '@modelcontextprotocol/server-git', '/path/to/repo'],
         env: {}
+      }
+    }
+  ],
+  "github-copilot": [
+    {
+      name: 'github-server',
+      description: 'GitHub 代码补全服务器',
+      config: {
+        command: 'npx',
+        args: ['-y', '@modelcontextprotocol/server-github'],
+        env: {
+          GITHUB_PERSONAL_ACCESS_TOKEN: '<YOUR_TOKEN>'
+        }
+      }
+    },
+    {
+      name: 'copilot-server',
+      description: 'Copilot 代码建议服务器',
+      config: {
+        command: 'npx',
+        args: ['-y', '@modelcontextprotocol/server-copilot'],
+        env: {
+          COPILOT_TOKEN: '<YOUR_TOKEN>'
+        }
+      }
+    }
+  ],
+  tabnine: [
+    {
+      name: 'local-ai-server',
+      description: '本地AI代码补全服务器',
+      config: {
+        command: 'npx',
+        args: ['-y', '@modelcontextprotocol/server-local-ai'],
+        env: {}
+      }
+    },
+    {
+      name: 'cloud-ai-server',
+      description: '云端AI代码补全服务器',
+      config: {
+        command: 'npx',
+        args: ['-y', '@modelcontextprotocol/server-cloud-ai'],
+        env: {
+          TABNINE_API_KEY: '<YOUR_API_KEY>'
+        }
+      }
+    }
+  ],
+  continue: [
+    {
+      name: 'continue-server',
+      description: 'Continue 代码补全服务器',
+      config: {
+        command: 'npx',
+        args: ['-y', '@modelcontextprotocol/server-continue'],
+        env: {}
+      }
+    },
+    {
+      name: 'custom-server',
+      description: '自定义代码补全服务器',
+      config: {
+        command: 'npx',
+        args: ['-y', '@modelcontextprotocol/server-custom'],
+        env: {}
+      }
+    }
+  ],
+  codeium: [
+    {
+      name: 'codeium-server',
+      description: 'Codeium 代码补全服务器',
+      config: {
+        command: 'npx',
+        args: ['-y', '@modelcontextprotocol/server-codeium'],
+        env: {
+          CODEIUM_API_KEY: '<YOUR_API_KEY>'
+        }
+      }
+    },
+    {
+      name: 'enterprise-server',
+      description: '企业版代码补全服务器',
+      config: {
+        command: 'npx',
+        args: ['-y', '@modelcontextprotocol/server-enterprise'],
+        env: {
+          ENTERPRISE_API_KEY: '<YOUR_API_KEY>'
+        }
       }
     }
   ]
