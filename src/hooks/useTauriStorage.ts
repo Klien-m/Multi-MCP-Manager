@@ -1,13 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
-import { writeTextFile, readTextFile, exists } from '@tauri-apps/plugin-fs';
-import { appConfigDir, appDataDir } from '@tauri-apps/api/path';
+import {useState, useEffect, useCallback} from 'react';
+import {writeTextFile, readTextFile, exists, BaseDirectory, create, mkdir} from '@tauri-apps/plugin-fs';
+import {appDataDir} from '@tauri-apps/api/path';
 
 /**
  * Tauri 存储 Hook - 仅处理 Tauri 文件系统操作
  */
 export const useTauriStorage = () => {
-  const [configDir, setConfigDir] = useState<string | null>(null);
-  const [dataDir, setDataDir] = useState<string | null>(null);
+  const [appDataDirPath, setAppDataDirPath] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -16,19 +15,31 @@ export const useTauriStorage = () => {
     try {
       setIsLoading(true);
       setError(null);
-      
-      const configPath = await appConfigDir();
-      const dataPath = await appDataDir();
-      
-      setConfigDir(configPath);
-      setDataDir(dataPath);
-      
-      // 确保目录存在
+
+      const appDataPath = await appDataDir();
+
+      setAppDataDirPath(appDataPath);
+
+      // 确保目录存在并创建必要的配置文件
       try {
-        await writeTextFile(`${configPath}/.init`, '');
-        await writeTextFile(`${dataPath}/.init`, '');
+        // 使用 mkdir 创建目录，而不是 create
+        if (!(await exists(appDataPath))) {
+          await mkdir(appDataPath, { recursive: true });
+        }
+        
+        // 检查并创建 mcp-configs.json
+        const mcpConfigsPath = getConfigPath("mcp-configs.json")
+        if (!(await exists(mcpConfigsPath, {baseDir: BaseDirectory.AppData}))) {
+          await create(mcpConfigsPath, {baseDir: BaseDirectory.AppData});
+        }
+
+        // 检查并创建 mcp-tools.json
+        const toolsConfigPath = getConfigPath("mcp-tools.json");
+        if (!(await exists(toolsConfigPath, {baseDir: BaseDirectory.AppData}))) {
+          await create(toolsConfigPath, {baseDir: BaseDirectory.AppData});
+        }
       } catch (dirError) {
-        console.warn('Failed to create directories:', dirError);
+        console.warn('Failed to create directories or config files:', dirError);
       }
     } catch (err) {
       console.error('Failed to initialize directories:', err);
@@ -38,28 +49,13 @@ export const useTauriStorage = () => {
     }
   }, []);
 
-  // 获取配置文件路径
-  const getConfigPath = useCallback(async (filename: string): Promise<string> => {
-    if (!configDir) {
-      await initializeDirectories();
-    }
-    return `${configDir}/${filename}`;
-  }, [configDir, initializeDirectories]);
-
-  // 获取数据文件路径
-  const getDataPath = useCallback(async (filename: string): Promise<string> => {
-    if (!dataDir) {
-      await initializeDirectories();
-    }
-    return `${dataDir}/${filename}`;
-  }, [dataDir, initializeDirectories]);
-
   // 读取文件
   const readFile = useCallback(async (filePath: string): Promise<string | null> => {
     try {
       setError(null);
-      if (await exists(filePath)) {
-        return await readTextFile(filePath);
+
+      if (await exists(filePath, {baseDir: BaseDirectory.AppData})) {
+        return await readTextFile(filePath, {baseDir: BaseDirectory.AppData});
       }
       return null;
     } catch (err) {
@@ -67,30 +63,31 @@ export const useTauriStorage = () => {
       setError('读取文件失败');
       return null;
     }
-  }, []);
+  }, [appDataDirPath]);
 
   // 写入文件
   const writeFile = useCallback(async (filePath: string, content: string): Promise<boolean> => {
     try {
       setError(null);
-      await writeTextFile(filePath, content);
+
+      await writeTextFile(filePath, content, {baseDir: BaseDirectory.AppData});
       return true;
     } catch (err) {
       console.error(`Failed to write file ${filePath}:`, err);
       setError('写入文件失败');
       return false;
     }
-  }, []);
+  }, [appDataDirPath]);
 
   // 检查文件是否存在
   const fileExists = useCallback(async (filePath: string): Promise<boolean> => {
     try {
-      return await exists(filePath);
+      return await exists(filePath, {baseDir: BaseDirectory.AppData});
     } catch (err) {
       console.error(`Failed to check file existence ${filePath}:`, err);
       return false;
     }
-  }, []);
+  }, [appDataDirPath]);
 
   // 初始化
   useEffect(() => {
@@ -124,13 +121,17 @@ export const useTauriStorage = () => {
     }
   }, [writeFile]);
 
+  // 获取配置键名
+  const getConfigPath = useCallback((filename: string): string => {
+    return `config-${filename}`;
+  }, []);
+
   return {
-    configDir,
-    dataDir,
+    configDir: appDataDirPath,
+    dataDir: appDataDirPath,
     isLoading,
     error,
     getConfigPath,
-    getDataPath,
     readFile,
     writeFile,
     fileExists,

@@ -31,7 +31,7 @@ export const useLocalStorage = () => {
   }, []);
 
   // 获取配置键名
-  const getConfigKey = useCallback((filename: string): string => {
+  const getConfigPath = useCallback((filename: string): string => {
     return `config_${filename}`;
   }, []);
 
@@ -207,7 +207,7 @@ export const useLocalStorage = () => {
     error,
     
     // 路径/键名生成
-    getConfigKey,
+    getConfigPath,
     getDataKey,
     
     // 基本操作

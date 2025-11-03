@@ -14,11 +14,10 @@ export const useMCPManager = () => {
   const {
     readJsonFile,
     writeJsonFile,
-    getConfigKey,
-    getDataKey,
+    getConfigPath,
     isLoading: storageLoading,
     error: storageError
-  } = useLocalStorage();
+  } = useTauriStorage();
 
   // 状态管理
   const [configs, setConfigs] = useState<MCPConfig[]>([]);
@@ -34,7 +33,7 @@ export const useMCPManager = () => {
       setConfigsLoading(true);
       setConfigsError(null);
       
-      const configsData = await readJsonFile<MCPConfig[]>(getConfigKey('mcp-configs.json'));
+      const configsData = await readJsonFile<MCPConfig[]>(getConfigPath('mcp-configs.json'));
       if (configsData) {
         setConfigs(configsData);
       } else {
@@ -57,7 +56,7 @@ export const useMCPManager = () => {
       setToolsLoading(true);
       setToolsError(null);
       
-      const toolsData = await readJsonFile<AITool[]>(getConfigKey('mcp-tools.json'));
+      const toolsData = await readJsonFile<AITool[]>(getConfigPath('mcp-tools.json'));
       if (toolsData) {
         setTools(toolsData);
       } else {
@@ -78,7 +77,7 @@ export const useMCPManager = () => {
   const saveConfigs = useCallback(async (configsData: MCPConfig[]) => {
     try {
       setConfigsError(null);
-      const success = await writeJsonFile(getConfigKey('mcp-configs.json'), configsData);
+      const success = await writeJsonFile(getConfigPath('mcp-configs.json'), configsData);
       if (success) {
         setConfigs(configsData);
       } else {
@@ -100,7 +99,7 @@ export const useMCPManager = () => {
   const saveTools = useCallback(async (toolsData: AITool[]) => {
     try {
       setToolsError(null);
-      const success = await writeJsonFile(getConfigKey('mcp-tools.json'), toolsData);
+      const success = await writeJsonFile(getConfigPath('mcp-tools.json'), toolsData);
       if (success) {
         setTools(toolsData);
       } else {
