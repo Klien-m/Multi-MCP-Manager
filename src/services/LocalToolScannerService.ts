@@ -1,5 +1,5 @@
 import { AITool, MCPConfig } from '../types';
-import { EXTENDED_TOOL_SCAN_CONFIGS, DEFAULT_TOOL_IDS } from '../test-data/default-configs';
+import { EXTENDED_TOOL_SCAN_CONFIGS, DEFAULT_TOOLS } from '../data/default-configs';
 import { tauriFileService } from './TauriFileService';
 import { createLogger } from './LoggerService';
 
@@ -22,8 +22,6 @@ export interface FoundMCPConfig {
   description: string;
   config: any;
   sourceFile: string;
-  format: 'standard' | 'legacy' | 'custom';
-  confidence: number; // 匹配置信度 0-1
 }
 
 /**
@@ -45,11 +43,66 @@ export class LocalToolScannerService {
   private supportedTools: AITool[] = [];
   private logger = createLogger('LocalToolScannerService');
 
+  constructor() {
+    // 初始化默认支持的工具
+    this.setSupportedTools(DEFAULT_TOOLS);
+  }
+
   /**
    * 设置支持的工具列表
    */
   setSupportedTools(tools: AITool[]): void {
     this.supportedTools = tools;
+  }
+
+  /**
+   * 扫描指定的 AI 工具列表
+   */
+  async scanTools(tools: AITool[], progressCallback?: ScanProgressCallback): Promise<ScanResult[]> {
+    const results: ScanResult[] = [];
+    
+    progressCallback?.({
+      current: 0,
+      total: tools.length,
+      status: '开始扫描指定的AI工具...'
+    });
+
+    for (let i = 0; i < tools.length; i++) {
+      const tool = tools[i];
+      progressCallback?.({
+        current: i + 1,
+        total: tools.length,
+        status: `正在扫描 ${tool.name}...`,
+        toolId: tool.id
+      });
+
+      try {
+        this.logger.debug(`开始扫描工具: ${tool.name} (${tool.id})`);
+        const result = await this.scanSingleTool(tool);
+        this.logger.info(`完成扫描工具: ${tool.name} (${tool.id})`, {
+          status: result.scanStatus,
+          configCount: result.foundConfigs.length
+        });
+        results.push(result);
+      } catch (error) {
+        this.logger.error(`扫描工具失败: ${tool.name} (${tool.id})`, error as Error);
+        results.push({
+          toolId: tool.id,
+          toolName: tool.name,
+          foundConfigs: [],
+          scanStatus: 'failed',
+          errorMessage: error instanceof Error ? error.message : '未知错误'
+        });
+      }
+    }
+
+    progressCallback?.({
+      current: tools.length,
+      total: tools.length,
+      status: '扫描完成'
+    });
+
+    return results;
   }
 
   /**
@@ -183,17 +236,19 @@ export class LocalToolScannerService {
     try {
       const parsed = JSON.parse(content);
       
-      // 检测不同的MCP配置格式
-      const detectedFormats = this.detectMCPFormats(parsed, toolConfig.mcpPatterns);
-      
-      for (const format of detectedFormats) {
-        const convertedConfig = this.convertToStandardFormat(parsed, format, sourceFile);
-        if (convertedConfig) {
-          configs.push(convertedConfig);
+      // 直接解析 mcpServers 配置
+      if (parsed.mcpServers) {
+        for (const [serverName, serverConfig] of Object.entries(parsed.mcpServers)) {
+          configs.push({
+            name: serverName,
+            description: `从 ${serverName} 配置转换`,
+            config: serverConfig,
+            sourceFile
+          });
         }
       }
       
-      // 如果没有检测到标准格式，尝试通用解析
+      // 如果没有 mcpServers，尝试通用解析
       if (configs.length === 0) {
         const genericConfig = this.parseGenericMCPConfig(parsed, sourceFile);
         if (genericConfig) {
@@ -206,113 +261,6 @@ export class LocalToolScannerService {
     }
     
     return configs;
-  }
-
-  /**
-   * 检测MCP配置格式
-   */
-  private detectMCPFormats(config: any, mcpPatterns: string[]): string[] {
-    const detectedFormats: string[] = [];
-    
-    for (const pattern of mcpPatterns) {
-      if (this.matchesPattern(config, pattern)) {
-        detectedFormats.push(pattern);
-      }
-    }
-    
-    return detectedFormats;
-  }
-
-  /**
-   * 检查配置是否匹配特定模式
-   */
-  private matchesPattern(config: any, pattern: string): boolean {
-    const configStr = JSON.stringify(config).toLowerCase();
-    return configStr.includes(pattern.toLowerCase());
-  }
-
-  /**
-   * 转换为标准格式
-   */
-  private convertToStandardFormat(
-    config: any,
-    format: string,
-    sourceFile: string
-  ): FoundMCPConfig | null {
-    try {
-      switch (format) {
-        case '@modelcontextprotocol':
-          return this.convertModelContextProtocolFormat(config, sourceFile);
-        case 'mcpServers':
-        case 'mcp-servers':
-          return this.convertMcpServersFormat(config, sourceFile);
-        case 'mcp':
-        case 'modelContextProtocol':
-          return this.convertGenericMcpFormat(config, sourceFile);
-        default:
-          return this.convertGenericMcpFormat(config, sourceFile);
-      }
-    } catch {
-      return null;
-    }
-  }
-
-  /**
-   * 转换Model Context Protocol格式
-   */
-  private convertModelContextProtocolFormat(config: any, sourceFile: string): FoundMCPConfig {
-    const servers = config?.mcpServers || config?.servers || [];
-    
-    return {
-      name: 'mcp-server',
-      description: '从Model Context Protocol配置转换',
-      config: {
-        command: 'npx',
-        args: servers.map((server: any) => server.command || '@modelcontextprotocol/server-local'),
-        env: config?.env || {}
-      },
-      sourceFile,
-      format: 'standard',
-      confidence: 0.9
-    };
-  }
-
-  /**
-   * 转换MCP Servers格式
-   */
-  private convertMcpServersFormat(config: any, sourceFile: string): FoundMCPConfig {
-    const servers = config?.mcpServers || config?.mcp_servers || [];
-    
-    return {
-      name: 'mcp-server',
-      description: '从MCP Servers配置转换',
-      config: {
-        command: 'npx',
-        args: servers.map((server: any) => server.args || []),
-        env: config?.environment || config?.env || {}
-      },
-      sourceFile,
-      format: 'standard',
-      confidence: 0.8
-    };
-  }
-
-  /**
-   * 转换通用MCP格式
-   */
-  private convertGenericMcpFormat(config: any, sourceFile: string): FoundMCPConfig {
-    return {
-      name: 'generic-mcp-server',
-      description: '从通用MCP配置转换',
-      config: {
-        command: 'npx',
-        args: config?.args || ['-y', '@modelcontextprotocol/server-local'],
-        env: config?.env || config?.environment || {}
-      },
-      sourceFile,
-      format: 'custom',
-      confidence: 0.6
-    };
   }
 
   /**
@@ -329,9 +277,7 @@ export class LocalToolScannerService {
         name: 'generic-config',
         description: '从通用配置字段提取',
         config: { command, args, env },
-        sourceFile,
-        format: 'custom',
-        confidence: 0.5
+        sourceFile
       };
     }
     
@@ -388,7 +334,7 @@ export class LocalToolScannerService {
           const mcpConfig: MCPConfig = {
             id: `scan-${result.toolId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             name: foundConfig.name,
-            enabled: foundConfig.confidence > 0.6, // 高置信度的配置默认启用
+            enabled: true, // 简化逻辑，所有扫描到的配置都启用
             config: foundConfig.config,
             lastModified: new Date().toISOString(),
             toolId: result.toolId
@@ -403,6 +349,38 @@ export class LocalToolScannerService {
     });
     
     return configs;
+  }
+
+  /**
+   * 从扫描结果创建 AITool 对象
+   * 只有当工具实际扫描到 MCP 配置时才创建 AITool
+   */
+  createAIToolsFromScanResults(scanResults: ScanResult[]): AITool[] {
+    const tools: AITool[] = [];
+    const processedToolIds = new Set<string>();
+
+    for (const result of scanResults) {
+      // 当工具成功或部分成功扫描到 MCP 配置时才创建 AITool
+      if ((result.scanStatus === 'success' || result.scanStatus === 'partial') && result.foundConfigs.length > 0) {
+        if (!processedToolIds.has(result.toolId)) {
+          processedToolIds.add(result.toolId);
+          
+          // 从支持的工具列表中查找工具信息
+          const toolInfo = this.supportedTools.find(tool => tool.id === result.toolId);
+          
+          const tool: AITool = {
+            id: result.toolId,
+            name: result.toolName,
+            icon: toolInfo?.icon || 'https://via.placeholder.com/32x32?text=AI',
+            defaultPath: toolInfo?.defaultPath || `~/.${result.toolId}/mcp.json`
+          };
+          
+          tools.push(tool);
+        }
+      }
+    }
+
+    return tools;
   }
 
   /**

@@ -17,7 +17,7 @@ export const useMCPManager = () => {
     getConfigPath,
     isLoading: storageLoading,
     error: storageError
-  } = useTauriStorage();
+  } = useLocalStorage();
 
   // 状态管理
   const [configs, setConfigs] = useState<MCPConfig[]>([]);

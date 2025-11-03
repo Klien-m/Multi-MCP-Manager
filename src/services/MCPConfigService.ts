@@ -1,5 +1,5 @@
 import { MCPConfig, AITool } from '../types';
-import { DEFAULT_TOOLS, DEFAULT_MCP_CONFIGS } from '../test-data/default-configs';
+import { DEFAULT_TOOLS, DEFAULT_MCP_CONFIGS } from '../data/default-configs';
 
 /**
  * MCP 配置服务 - 统一的配置管理核心
@@ -10,8 +10,8 @@ export class MCPConfigService {
 
   // 初始化默认配置
   initializeDefaultConfigs(): void {
-    this.tools = [...DEFAULT_TOOLS];
-    this.configs = [...DEFAULT_MCP_CONFIGS];
+    this.tools = [];
+    this.configs = [];
   }
 
   // 获取所有配置

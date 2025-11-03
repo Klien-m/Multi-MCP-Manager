@@ -55,6 +55,7 @@ export function MainApp() {
   const [isCopyDialogOpen, setIsCopyDialogOpen] = useState(false);
   const [isToolManagerOpen, setIsToolManagerOpen] = useState(false);
   const [isScanDialogOpen, setIsScanDialogOpen] = useState(false);
+  const [isNoToolsDialogOpen, setIsNoToolsDialogOpen] = useState(false);
 
   // 计算属性
   const configCounts = tools.reduce((acc, tool) => {
@@ -122,6 +123,12 @@ export function MainApp() {
   };
 
   const handleNewConfig = () => {
+    // 检查是否有工具，如果没有则显示对话框提示用户先创建工具
+    if (!selectedToolId || tools.length === 0) {
+      setIsNoToolsDialogOpen(true);
+      return;
+    }
+    
     setEditingConfig(null);
     setIsNewConfig(true);
     setIsEditorOpen(true);
@@ -358,6 +365,29 @@ export function MainApp() {
             </DialogDescription>
           </DialogHeader>
           <ToolScanToolbar supportedTools={tools} />
+        </DialogContent>
+      </Dialog>
+
+            {/* 没有工具时的提示对话框 */}
+      <Dialog open={isNoToolsDialogOpen} onOpenChange={setIsNoToolsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>无法创建配置</DialogTitle>
+            <DialogDescription>
+              请先创建工具，然后才能创建 MCP 配置。
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end space-x-2 mt-4">
+            <Button variant="outline" onClick={() => setIsNoToolsDialogOpen(false)}>
+              取消
+            </Button>
+            <Button onClick={() => {
+              setIsNoToolsDialogOpen(false);
+              setIsToolManagerOpen(true);
+            }}>
+              去创建工具
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

@@ -91,29 +91,6 @@ export function ScanConfirmationDialog({
     return `${config.toolName} 配置 ${index + 1}`;
   };
 
-  // 获取配置的格式标签
-  const getConfigFormatBadge = (config: FoundMCPConfig) => {
-    const formatColors = {
-      standard: 'bg-green-100 text-green-800',
-      legacy: 'bg-yellow-100 text-yellow-800',
-      custom: 'bg-blue-100 text-blue-800'
-    };
-    
-    return (
-      <Badge className={formatColors[config.format] || 'bg-gray-100 text-gray-800'}>
-        {config.format === 'standard' ? '标准' : 
-         config.format === 'legacy' ? '遗留' : '自定义'}
-      </Badge>
-    );
-  };
-
-  // 获取置信度颜色
-  const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 0.8) return 'text-green-600';
-    if (confidence >= 0.6) return 'text-yellow-600';
-    return 'text-red-600';
-  };
-
   // 获取扫描状态图标
   const getScanStatusIcon = (result: ScanResult) => {
     switch (result.scanStatus) {
@@ -274,10 +251,6 @@ export function ScanConfirmationDialog({
                                   <div className="flex items-center space-x-2">
                                     <span className="font-medium">
                                       {getConfigDisplayName(config as FoundMCPConfig & { toolName: string }, configIndex)}
-                                    </span>
-                                    {getConfigFormatBadge(config)}
-                                    <span className={`text-sm ${getConfidenceColor(config.confidence)}`}>
-                                      置信度 {(config.confidence * 100).toFixed(0)}%
                                     </span>
                                   </div>
                                   <p className="text-sm text-gray-600">
