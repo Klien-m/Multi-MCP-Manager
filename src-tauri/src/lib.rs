@@ -20,6 +20,8 @@ pub fn run() {
       Ok(())
     })
     .invoke_handler(tauri::generate_handler![
+      // homd_dir
+      commands::file_commands::get_user_home_dir,
       // 文件存在性检查
       commands::file_commands::file_exists,
       commands::file_commands::file_dir_exists,

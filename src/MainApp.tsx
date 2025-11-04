@@ -18,8 +18,9 @@ import {
   Server,
   Settings
 } from 'lucide-react';
-import {Toaster} from "@/components/ui/sonner.tsx";
+import {Toaster} from "./components/ui/sonner.tsx";
 import { AITool } from './types';
+import { DEFAULT_MCP_CONFIGS, DEFAULT_TOOLS } from './data/default-configs.ts';
 
 export function MainApp() {
   const {
@@ -364,7 +365,7 @@ export function MainApp() {
               扫描本地AI工具的MCP配置文件并自动转换为项目支持的格式
             </DialogDescription>
           </DialogHeader>
-          <ToolScanToolbar supportedTools={tools} />
+          <ToolScanToolbar supportedTools={DEFAULT_TOOLS} />
         </DialogContent>
       </Dialog>
 

@@ -7,6 +7,15 @@ use std::path::Path;
 pub mod file_utils {
     use super::*;
     
+    /// 获取用户主目录路径
+    ///
+    /// # Returns
+    /// * `Option<String>` - 用户主目录路径，如果获取失败则返回 None
+    pub fn get_user_home_dir() -> Option<String> {
+        dirs::home_dir()
+            .and_then(|path| path.to_str().map(|s| s.to_string()))
+    }
+    
     /// 检查文件是否存在
     /// 
     /// # Arguments

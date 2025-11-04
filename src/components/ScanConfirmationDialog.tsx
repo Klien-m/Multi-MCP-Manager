@@ -144,7 +144,7 @@ export function ScanConfirmationDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 flex-1 overflow-hidden">
+        <div className="space-y-4 flex-1 overflow-auto">
           {/* 扫描摘要 */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
@@ -197,7 +197,7 @@ export function ScanConfirmationDialog({
           )}
 
           {/* 配置列表 */}
-          <div className="flex-1 overflow-y-auto space-y-4">
+          <div className="max-h-[400px] overflow-y-auto space-y-4 pr-2">
             {scanResults.map((result, toolIndex) => (
               <Card key={`${result.toolId}-${toolIndex}`}>
                 <CardHeader className="pb-2">

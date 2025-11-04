@@ -1,5 +1,5 @@
 import React from 'react';
-import {MainApp} from "@/MainApp.tsx";
+import {MainApp} from "./MainApp.tsx";
 
 function App() {
   return (

@@ -12,6 +12,5 @@ export interface AITool {
   id: string;
   name: string;
   icon: string;
-  configPath?: string;
   defaultPath?: string; // 兼容性属性
 }

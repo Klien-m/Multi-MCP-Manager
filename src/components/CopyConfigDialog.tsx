@@ -108,9 +108,13 @@ export function CopyConfigDialog({ sourceConfig, allConfigs, tools, open, onClos
 
               <div className="space-y-2">
                 <Label htmlFor="target-config">目标配置</Label>
-                <Select value={targetId} onValueChange={setTargetId}>
+                <Select
+                  value={targetId}
+                  onValueChange={setTargetId}
+                  disabled={availableConfigs.length === 0}
+                >
                   <SelectTrigger id="target-config">
-                    <SelectValue placeholder="选择要覆盖的配置" />
+                    <SelectValue placeholder={availableConfigs.length === 0 ? "暂无可用配置" : "选择要覆盖的配置"} />
                   </SelectTrigger>
                   <SelectContent>
                     {availableConfigs.map(config => (
@@ -138,7 +142,10 @@ export function CopyConfigDialog({ sourceConfig, allConfigs, tools, open, onClos
             <Button variant="outline" onClick={handleClose}>
               取消
             </Button>
-            <Button onClick={handleCopy} disabled={!targetId}>
+            <Button
+              onClick={handleCopy}
+              disabled={!targetId || availableConfigs.length === 0}
+            >
               复制配置
             </Button>
           </DialogFooter>

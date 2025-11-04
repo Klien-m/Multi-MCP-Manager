@@ -23,7 +23,7 @@ export class TauriFileService {
    */
   async checkFileExists(path: string): Promise<boolean> {
     try {
-      const exists = await invoke<boolean>('check_file_exists', { path });
+      const exists = await invoke<boolean>('file_exists', { path });
       return exists;
     } catch (error) {
       console.error('Failed to check file exists:', error);
@@ -36,7 +36,7 @@ export class TauriFileService {
    */
   async readFile(path: string): Promise<string | undefined> {
     try {
-      const content = await invoke<string>('read_file_content', { path });
+      const content = await invoke<string>('read_file', { path });
       return content;
     } catch (error) {
       console.error('Failed to read file:', error);
@@ -60,44 +60,6 @@ export class TauriFileService {
     return path;
   }
 
-  /**
-   * 扫描本地AI工具
-   */
-  async scanLocalTools(): Promise<any[]> {
-    try {
-      const results = await invoke<any[]>('scan_local_tools');
-      return results;
-    } catch (error) {
-      console.error('Failed to scan local tools:', error);
-      throw new Error('扫描本地AI工具失败');
-    }
-  }
-
-  /**
-   * 读取目录内容
-   */
-  async readDir(path: string): Promise<string[]> {
-    try {
-      // TODO: 需要添加Tauri命令来读取目录
-      return [];
-    } catch (error) {
-      console.error('Failed to read directory:', error);
-      return [];
-    }
-  }
-
-  /**
-   * 写入文件
-   */
-  async writeFile(path: string, content: string): Promise<void> {
-    try {
-      // TODO: 需要添加Tauri命令来写入文件
-      console.log('Write file not yet implemented');
-    } catch (error) {
-      console.error('Failed to write file:', error);
-      throw new Error('写入文件失败');
-    }
-  }
 }
 
 // 导出单例
