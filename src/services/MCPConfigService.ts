@@ -118,6 +118,20 @@ export class MCPConfigService {
     return newTool;
   }
 
+  // 添加已有ID的工具（用于扫描场景）
+  addToolWithId(tool: AITool): boolean {
+    // 检查工具是否已存在
+    const existingIndex = this.tools.findIndex(t => t.id === tool.id);
+    if (existingIndex !== -1) {
+      // 如果已存在，更新它
+      this.tools[existingIndex] = tool;
+      return true;
+    }
+    // 如果不存在，添加它
+    this.tools.push(tool);
+    return true;
+  }
+
   // 更新工具
   updateTool(updatedTool: AITool): boolean {
     const index = this.tools.findIndex(tool => tool.id === updatedTool.id);
@@ -236,6 +250,14 @@ export class MCPConfigService {
     } catch (e) {
       return { success: false, message: "JSON 解析失败" };
     }
+  }
+
+  // 从外部数据重新加载（用于同步文件系统和内存）
+  reloadFromData(configs: MCPConfig[], tools: AITool[]): void {
+    console.log('MCPConfigService: reloadFromData called with:', { configs, tools });
+    this.configs = [...configs];
+    this.tools = [...tools];
+    console.log('MCPConfigService: reloadFromData completed, configs count:', this.configs.length, 'tools count:', this.tools.length);
   }
 }
 

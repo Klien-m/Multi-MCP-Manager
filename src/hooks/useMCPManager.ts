@@ -17,7 +17,7 @@ export const useMCPManager = () => {
     getConfigPath,
     isLoading: storageLoading,
     error: storageError
-  } = useLocalStorage();
+  } = useTauriStorage();
 
   // 状态管理
   const [configs, setConfigs] = useState<MCPConfig[]>([]);
@@ -75,11 +75,16 @@ export const useMCPManager = () => {
 
   // 保存配置数据到文件系统
   const saveConfigs = useCallback(async (configsData: MCPConfig[]) => {
+    console.log('useMCPManager: saveConfigs called with:', { configsCount: configsData.length });
     try {
       setConfigsError(null);
       const success = await writeJsonFile(getConfigPath('mcp-configs.json'), configsData);
       if (success) {
+        console.log('useMCPManager: saveConfigs success, updating state');
         setConfigs(configsData);
+        // 同步更新MCP配置服务
+        mcpConfigService.reloadFromData(configsData, tools);
+        console.log('useMCPManager: saveConfigs completed successfully');
       } else {
         const errorMessage = '保存配置数据失败';
         toast.error(errorMessage);
@@ -87,7 +92,7 @@ export const useMCPManager = () => {
       }
       return success;
     } catch (err) {
-      console.error('Failed to save configs:', err);
+      console.error('useMCPManager: Failed to save configs:', err);
       const errorMessage = '保存配置数据失败';
       toast.error(errorMessage);
       setConfigsError(errorMessage);
@@ -97,11 +102,16 @@ export const useMCPManager = () => {
 
   // 保存工具数据到文件系统
   const saveTools = useCallback(async (toolsData: AITool[]) => {
+    console.log('useMCPManager: saveTools called with:', { toolsCount: toolsData.length });
     try {
       setToolsError(null);
       const success = await writeJsonFile(getConfigPath('mcp-tools.json'), toolsData);
       if (success) {
+        console.log('useMCPManager: saveTools success, updating state');
         setTools(toolsData);
+        // 同步更新MCP配置服务
+        mcpConfigService.reloadFromData(configs, toolsData);
+        console.log('useMCPManager: saveTools completed successfully');
       } else {
         const errorMessage = '保存工具数据失败';
         toast.error(errorMessage);
@@ -109,7 +119,7 @@ export const useMCPManager = () => {
       }
       return success;
     } catch (err) {
-      console.error('Failed to save tools:', err);
+      console.error('useMCPManager: Failed to save tools:', err);
       const errorMessage = '保存工具数据失败';
       toast.error(errorMessage);
       setToolsError(errorMessage);
@@ -132,30 +142,30 @@ export const useMCPManager = () => {
     if (configs.length === 0 && tools.length === 0 && !configsLoading && !toolsLoading && !storageLoading) {
       // 如果没有存储数据且存储系统已初始化，使用默认配置
       const initializeDefaultData = async () => {
-        try {
+    try {
           // 等待存储系统完全初始化
           if (!storageLoading) {
-            mcpConfigService.initializeDefaultConfigs();
-            const defaultConfigs = mcpConfigService.getAllConfigs();
-            const defaultTools = mcpConfigService.getAllTools();
-            
-            // 延迟保存，确保目录完全准备好
-            setTimeout(async () => {
-              await saveConfigs(defaultConfigs);
-              await saveTools(defaultTools);
-              
-              // 设置默认选中的工具
-              const defaultTool = defaultTools[0];
-              if (defaultTool) {
-                setSelectedToolId(defaultTool.id);
-              }
+      mcpConfigService.initializeDefaultConfigs();
+      const defaultConfigs = mcpConfigService.getAllConfigs();
+      const defaultTools = mcpConfigService.getAllTools();
+      
+      // 延迟保存，确保目录完全准备好
+      setTimeout(async () => {
+        await saveConfigs(defaultConfigs);
+        await saveTools(defaultTools);
+        
+        // 设置默认选中的工具
+        const defaultTool = defaultTools[0];
+        if (defaultTool) {
+          setSelectedToolId(defaultTool.id);
+        }
             }, 500);
           }
-        } catch (err) {
-          console.error('Failed to initialize default data:', err);
-        }
+    } catch (err) {
+      console.error('Failed to initialize default data:', err);
+    }
       };
-      
+
       initializeDefaultData();
     } else if (tools.length > 0 && !selectedToolId && !toolsLoading) {
       // 如果有工具但没有选中，默认选中第一个
@@ -237,11 +247,11 @@ export const useMCPManager = () => {
   const toggleConfig = useCallback((id: string) => {
     const success = mcpConfigService.toggleConfig(id);
     if (success) {
-      const config = mcpConfigService.getAllConfigs()
-      saveConfigs(config);
+      const updatedConfigs = mcpConfigService.getAllConfigs();
+      saveConfigs(updatedConfigs);
     }
     return success;
-  }, [configs, saveConfigs]);
+  }, [saveConfigs]);
 
   // 添加新工具
   const addTool = useCallback((tool: Omit<AITool, 'id'>) => {
@@ -418,15 +428,24 @@ export const useMCPManager = () => {
 
   // 重新加载数据
   const reloadData = useCallback(async () => {
+    console.log('useMCPManager: reloadData called');
     const newConfigs = mcpConfigService.getAllConfigs();
     const newTools = mcpConfigService.getAllTools();
+    console.log('useMCPManager: service data:', { newConfigs, newTools });
     setConfigs(newConfigs);
     setTools(newTools);
-    await Promise.all([
-      saveConfigs(newConfigs),
-      saveTools(newTools)
+    console.log('useMCPManager: state updated');
+    // 直接写入文件，避免触发状态更新循环
+    const [configsSuccess, toolsSuccess] = await Promise.all([
+      writeJsonFile(getConfigPath('mcp-configs.json'), newConfigs),
+      writeJsonFile(getConfigPath('mcp-tools.json'), newTools)
     ]);
-  }, [saveConfigs, saveTools]);
+    if (configsSuccess && toolsSuccess) {
+      console.log('useMCPManager: reloadData completed successfully');
+    } else {
+      console.error('useMCPManager: reloadData failed to save files');
+    }
+  }, [writeJsonFile, getConfigPath]);
 
   return {
     // 数据

@@ -36,7 +36,7 @@ export class TauriFileService {
    */
   async readFile(path: string): Promise<string | undefined> {
     try {
-      const content = await invoke<string>('read_file', { path });
+      const content = await invoke<string>('file_read', { path });
       return content;
     } catch (error) {
       console.error('Failed to read file:', error);

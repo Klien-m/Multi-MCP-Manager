@@ -1,4 +1,17 @@
 use std::io::Write;
+use std::env;
+
+// 获取用户主目录命令
+#[tauri::command]
+pub fn get_user_home_dir() -> Result<String, String> {
+  match env::var("HOME") {
+    Ok(home) => Ok(home),
+    Err(_) => match env::var("USERPROFILE") {
+      Ok(profile) => Ok(profile),
+      Err(_) => Err("无法获取用户主目录".to_string()),
+    }
+  }
+}
 
 // 文件存在性检查命令
 #[tauri::command]

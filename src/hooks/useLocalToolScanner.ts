@@ -142,25 +142,30 @@ export const useLocalToolScanner = () => {
     confirmConfigs: FoundMCPConfig[]
   ): Promise<boolean> => {
     try {
+      console.log('useLocalToolScanner: saveScanConfigs called with:', { scanResults, confirmConfigs });
+      
       // 转换为MCP配置
       const allConfigs = localToolScannerService.convertToMCPConfigs(scanResults);
+      console.log('useLocalToolScanner: converted configs:', allConfigs);
       
       // 只保存用户确认的配置
-      const configsToSave = allConfigs.filter(config => 
-        confirmConfigs.some(confirmed => 
+      const configsToSave = allConfigs.filter(config =>
+        confirmConfigs.some(confirmed =>
           confirmed.sourceFile === config.id.split('-').slice(1).join('-')
         )
       );
+      console.log('useLocalToolScanner: configs to save:', configsToSave);
 
       // 添加到MCP配置服务
       for (const config of configsToSave) {
         mcpConfigService.addConfig(config);
       }
 
+      console.log('useLocalToolScanner: saveScanConfigs completed successfully');
       toast.success(`成功保存 ${configsToSave.length} 个MCP配置`);
       return true;
     } catch (error) {
-      console.error('保存扫描配置失败:', error);
+      console.error('useLocalToolScanner: 保存扫描配置失败:', error);
       toast.error('保存配置时发生错误');
       return false;
     }

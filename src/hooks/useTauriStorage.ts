@@ -12,15 +12,16 @@ export const useTauriStorage = () => {
 
   // 初始化存储目录
   const initializeDirectories = useCallback(async () => {
+    console.log('useTauriStorage: initializeDirectories called');
     try {
       setIsLoading(true);
       setError(null);
 
       const appDataPath = await appDataDir();
-
       setAppDataDirPath(appDataPath);
+      console.log('useTauriStorage: appDataPath set to:', appDataPath);
 
-      // 确保目录存在并创建必要的配置文件
+      // 确保目录存在并创建必要的配置文件（异步处理，不阻塞主流程）
       try {
         // 使用 mkdir 创建目录，而不是 create
         if (!(await exists(appDataPath))) {
@@ -39,13 +40,14 @@ export const useTauriStorage = () => {
           await create(toolsConfigPath, {baseDir: BaseDirectory.AppData});
         }
       } catch (dirError) {
-        console.warn('Failed to create directories or config files:', dirError);
+        console.warn('useTauriStorage: Failed to create directories or config files:', dirError);
       }
     } catch (err) {
-      console.error('Failed to initialize directories:', err);
+      console.error('useTauriStorage: Failed to initialize directories:', err);
       setError('初始化存储目录失败');
     } finally {
       setIsLoading(false);
+      console.log('useTauriStorage: initializeDirectories completed');
     }
   }, []);
 
@@ -67,13 +69,15 @@ export const useTauriStorage = () => {
 
   // 写入文件
   const writeFile = useCallback(async (filePath: string, content: string): Promise<boolean> => {
+    console.log('useTauriStorage: writeFile called with:', { filePath, contentLength: content.length });
     try {
       setError(null);
 
       await writeTextFile(filePath, content, {baseDir: BaseDirectory.AppData});
+      console.log('useTauriStorage: writeFile success for:', filePath);
       return true;
     } catch (err) {
-      console.error(`Failed to write file ${filePath}:`, err);
+      console.error(`useTauriStorage: Failed to write file ${filePath}:`, err);
       setError('写入文件失败');
       return false;
     }

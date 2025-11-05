@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from './ui/button';
+import { toast } from 'sonner';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Alert, AlertDescription } from './ui/alert';
 import { Badge } from './ui/badge';
@@ -26,7 +27,7 @@ export function ToolScanToolbar({ supportedTools }: ToolScanToolbarProps) {
     saveScanConfigs
   } = useLocalToolScanner();
   
-  const { reloadData } = useMCPManager();
+  const { reloadData, setSelectedToolId, tools } = useMCPManager();
   
   const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
   const [scanResults, setScanResults] = useState<any[]>([]);
@@ -49,22 +50,31 @@ export function ToolScanToolbar({ supportedTools }: ToolScanToolbarProps) {
    * 确认并保存配置
    */
   const handleConfirmConfigs = async (confirmedConfigs: any[]) => {
+    console.log('ToolScanToolbar: handleConfirmConfigs called with:', { confirmedConfigs, scanResults });
     try {
       setIsSavingConfigs(true);
       
       // 转换扫描结果为MCP配置
       const mcpConfigs = convertScanResultsToConfigs(scanResults);
+      console.log('ToolScanToolbar: converted configs:', mcpConfigs);
       
       // 保存配置到MCP管理器
       const success = await saveScanConfigs(scanResults, confirmedConfigs);
+      console.log('ToolScanToolbar: saveScanConfigs result:', success);
       
       if (success) {
+        console.log('ToolScanToolbar: saving completed successfully');
         setShowConfirmationDialog(false);
-        reloadData();
+        // 确保 reloadData 完成后再清空 scanResults
+        await reloadData();
         setScanResults([]);
+        console.log('ToolScanToolbar: handleConfirmConfigs completed');
+      } else {
+        console.log('ToolScanToolbar: saveScanConfigs failed');
       }
     } catch (error) {
-      console.error('保存配置失败:', error);
+      console.error('ToolScanToolbar: 保存配置失败:', error);
+      toast.error('保存配置时发生错误');
     } finally {
       setIsSavingConfigs(false);
     }

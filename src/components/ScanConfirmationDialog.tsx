@@ -33,20 +33,21 @@ export function ScanConfirmationDialog({
   // 计算总的配置数量
   const totalConfigs = scanResults.reduce((sum, result) => sum + result.foundConfigs.length, 0);
   
-  // 获取所有可选择的配置（添加工具信息）
-  const allConfigs = scanResults.flatMap(result => 
-    result.foundConfigs.map(config => ({
-      ...config,
-      toolId: result.toolId,
-      toolName: result.toolName
-    }))
+  // 获取所有可选择的配置
+  const allConfigs = scanResults.flatMap(result =>
+    result.foundConfigs
   );
+  
+  // 为每个配置生成唯一ID
+  const getConfigId = (config: FoundMCPConfig, index: number): string => {
+    return `config-${index}`;
+  };
 
   // 处理全选/取消全选
   const handleSelectAll = (checked: boolean) => {
     setSelectAll(checked);
     if (checked) {
-      const allConfigIds = allConfigs.map((_, index) => `config-${index}`);
+      const allConfigIds = allConfigs.map((config, index) => getConfigId(config, index));
       setSelectedConfigs(new Set(allConfigIds));
     } else {
       setSelectedConfigs(new Set());
@@ -54,8 +55,8 @@ export function ScanConfirmationDialog({
   };
 
   // 处理单个配置的选择
-  const handleConfigToggle = (configIndex: number) => {
-    const configId = `config-${configIndex}`;
+  const handleConfigToggle = (config: FoundMCPConfig, configIndex: number) => {
+    const configId = getConfigId(config, configIndex);
     const newSelected = new Set(selectedConfigs);
     
     if (newSelected.has(configId)) {
@@ -77,18 +78,16 @@ export function ScanConfirmationDialog({
     return Array.from(selectedConfigs).map(configId => {
       const index = parseInt(configId.replace('config-', ''));
       const config = allConfigs[index];
-      // 返回原始的FoundMCPConfig，不包含工具信息
-      const { toolId, toolName, ...originalConfig } = config;
-      return originalConfig;
+      return config;
     }).filter(config => config);
   };
 
   // 获取配置的显示名称
-  const getConfigDisplayName = (config: FoundMCPConfig & { toolName: string }, index: number) => {
+  const getConfigDisplayName = (config: FoundMCPConfig, index: number) => {
     if (config.name && config.name !== 'generic-config') {
-      return `${config.toolName} - ${config.name}`;
+      return config.name;
     }
-    return `${config.toolName} 配置 ${index + 1}`;
+    return `配置 ${index + 1}`;
   };
 
   // 获取扫描状态图标
@@ -107,7 +106,9 @@ export function ScanConfirmationDialog({
 
   // 处理确认
   const handleConfirm = () => {
+    console.log('ScanConfirmationDialog: handleConfirm called');
     const confirmedConfigs = getSelectedConfigs();
+    console.log('ScanConfirmationDialog: selected configs:', confirmedConfigs);
     onConfirm(confirmedConfigs);
   };
 
@@ -135,7 +136,7 @@ export function ScanConfirmationDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>扫描结果确认</DialogTitle>
@@ -144,7 +145,7 @@ export function ScanConfirmationDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 flex-1 overflow-auto">
+        <div className="space-y-4 flex-1 overflow-y-auto overflow-x-hidden">
           {/* 扫描摘要 */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
@@ -198,78 +199,85 @@ export function ScanConfirmationDialog({
 
           {/* 配置列表 */}
           <div className="max-h-[400px] overflow-y-auto space-y-4 pr-2">
-            {scanResults.map((result, toolIndex) => (
-              <Card key={`${result.toolId}-${toolIndex}`}>
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      {getScanStatusIcon(result)}
-                      <CardTitle>{result.toolName}</CardTitle>
-                      <Badge variant="secondary">
-                        {result.foundConfigs.length} 个配置
-                      </Badge>
+            {scanResults.map((result, toolIndex) => {
+              // 如果没有找到配置且没有错误信息，则跳过显示
+              if (result.foundConfigs.length === 0 && !result.errorMessage) {
+                return null;
+              }
+              
+              return (
+                <Card key={`${result.toolId}-${toolIndex}`}>
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        {getScanStatusIcon(result)}
+                        <CardTitle>{result.toolName}</CardTitle>
+                        <Badge variant="secondary">
+                          {result.foundConfigs.length} 个配置
+                        </Badge>
+                      </div>
+                      {result.errorMessage && (
+                        <Alert variant="destructive" className="w-auto">
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertDescription>{result.errorMessage}</AlertDescription>
+                        </Alert>
+                      )}
                     </div>
-                    {result.errorMessage && (
-                      <Alert variant="destructive" className="w-auto">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertDescription>{result.errorMessage}</AlertDescription>
-                      </Alert>
-                    )}
-                  </div>
-                  <CardDescription>{result.toolId}</CardDescription>
-                </CardHeader>
-                
-                <CardContent>
-                  {result.foundConfigs.length === 0 ? (
-                    <div className="text-center py-4 text-gray-500">
-                      未找到配置文件，已生成默认建议
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {result.foundConfigs.map((config, configIndex) => {
-                        const configId = `config-${allConfigs.indexOf(config as any)}`;
-                        const isSelected = selectedConfigs.has(configId);
-                        
-                        return (
-                          <div
-                            key={configId}
-                            className={`p-3 border rounded-lg transition-colors ${
-                              isSelected 
-                                ? 'border-blue-500 bg-blue-50' 
-                                : 'border-gray-200 hover:border-gray-300'
-                            }`}
-                          >
-                            <div className="flex items-start justify-between">
-                              <div className="flex items-start space-x-3 flex-1">
-                                <Input
-                                  type="checkbox"
-                                  checked={isSelected}
-                                  onChange={() => handleConfigToggle(allConfigs.indexOf(config as any))}
-                                  className="mt-1 h-4 w-4"
-                                />
-                                <div className="space-y-1 flex-1">
-                                  <div className="flex items-center space-x-2">
-                                    <span className="font-medium">
-                                      {getConfigDisplayName(config as FoundMCPConfig & { toolName: string }, configIndex)}
-                                    </span>
-                                  </div>
-                                  <p className="text-sm text-gray-600">
-                                    {config.description}
-                                  </p>
-                                  <div className="text-xs text-gray-500">
-                                    来源: {config.sourceFile}
+                    <CardDescription>{result.toolId}</CardDescription>
+                  </CardHeader>
+                  
+                  <CardContent>
+                    {result.foundConfigs.length === 0 ? (
+                      <div className="text-center py-4 text-gray-500">
+                        未找到配置文件，已生成默认建议
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {result.foundConfigs.map((config, configIndex) => {
+                          const configId = `config-${allConfigs.indexOf(config as any)}`;
+                          const isSelected = selectedConfigs.has(configId);
+                          
+                          return (
+                            <div
+                              key={configId}
+                              className={`p-3 border rounded-lg transition-colors ${
+                                isSelected
+                                  ? 'border-blue-500 bg-blue-50'
+                                  : 'border-gray-200 hover:border-gray-300'
+                              }`}
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className="flex items-start space-x-3 flex-1">
+                                  <Input
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onChange={() => handleConfigToggle(config, allConfigs.indexOf(config as any))}
+                                    className="mt-1 h-4 w-4"
+                                  />
+                                  <div className="space-y-1 flex-1">
+                                    <div className="flex items-center space-x-2">
+                                      <span className="font-medium">
+                                        {getConfigDisplayName(config, configIndex)}
+                                      </span>
+                                    </div>
+                                    <p className="text-sm text-gray-600">
+                                      {config.description}
+                                    </p>
+                                    <div className="text-xs text-gray-500">
+                                      来源: {config.sourceFile}
+                                    </div>
                                   </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+                          );
+                        })}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            }).filter(Boolean)}
           </div>
         </div>
 
