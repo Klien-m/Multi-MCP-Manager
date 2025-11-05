@@ -151,18 +151,27 @@ export const useLocalToolScanner = () => {
       // 只保存用户确认的配置
       const configsToSave = allConfigs.filter(config =>
         confirmConfigs.some(confirmed =>
-          confirmed.sourceFile === config.id.split('-').slice(1).join('-')
+          confirmed.name === config.name
         )
       );
       console.log('useLocalToolScanner: configs to save:', configsToSave);
 
-      // 添加到MCP配置服务
+      // 从扫描结果创建AI工具
+      const toolsToSave = localToolScannerService.createAIToolsFromScanResults(scanResults);
+      console.log('useLocalToolScanner: tools to save:', toolsToSave);
+
+      // 保存工具到MCP配置服务
+      for (const tool of toolsToSave) {
+        mcpConfigService.addToolWithId(tool);
+      }
+
+      // 保存配置到MCP配置服务
       for (const config of configsToSave) {
         mcpConfigService.addConfig(config);
       }
 
       console.log('useLocalToolScanner: saveScanConfigs completed successfully');
-      toast.success(`成功保存 ${configsToSave.length} 个MCP配置`);
+      toast.success(`成功保存 ${toolsToSave.length} 个AI工具和 ${configsToSave.length} 个MCP配置`);
       return true;
     } catch (error) {
       console.error('useLocalToolScanner: 保存扫描配置失败:', error);

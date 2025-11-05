@@ -31,6 +31,23 @@ export class MCPConfigService {
 
   // 添加新配置
   addConfig(config: Omit<MCPConfig, 'id' | 'lastModified'>): MCPConfig {
+    // 检查是否已存在相同 name 和 toolId 的配置
+    const existingIndex = this.configs.findIndex(
+      c => c.name === config.name && c.toolId === config.toolId
+    );
+    
+    if (existingIndex !== -1) {
+      // 如果已存在，更新现有配置
+      const updatedConfig: MCPConfig = {
+        ...this.configs[existingIndex],
+        ...config,
+        lastModified: new Date().toISOString()
+      };
+      this.configs[existingIndex] = updatedConfig;
+      return updatedConfig;
+    }
+    
+    // 如果不存在，添加新配置
     const newConfig: MCPConfig = {
       ...config,
       id: this.generateId(),

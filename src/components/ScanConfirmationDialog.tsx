@@ -82,6 +82,38 @@ export function ScanConfirmationDialog({
     }).filter(config => config);
   };
 
+  // 按工具分组的选中配置
+  const getSelectedConfigsWithGrouping = (): Array<{ toolId: string; toolName: string; configs: FoundMCPConfig[] }> => {
+    const selectedConfigs = getSelectedConfigs();
+    
+    // 按 toolId 分组
+    const groupedConfigs = new Map<string, { toolId: string; toolName: string; configs: FoundMCPConfig[] }>();
+    
+    for (const config of selectedConfigs) {
+      // 找到配置所属的工具
+      const scanResult = scanResults.find(result =>
+        result.foundConfigs.some(foundConfig => foundConfig === config)
+      );
+      
+      if (scanResult) {
+        const toolId = scanResult.toolId;
+        const toolName = scanResult.toolName;
+        
+        if (!groupedConfigs.has(toolId)) {
+          groupedConfigs.set(toolId, {
+            toolId,
+            toolName,
+            configs: []
+          });
+        }
+        
+        groupedConfigs.get(toolId)!.configs.push(config);
+      }
+    }
+    
+    return Array.from(groupedConfigs.values());
+  };
+
   // 获取配置的显示名称
   const getConfigDisplayName = (config: FoundMCPConfig, index: number) => {
     if (config.name && config.name !== 'generic-config') {

@@ -83,7 +83,7 @@ export const useMCPManager = () => {
         console.log('useMCPManager: saveConfigs success, updating state');
         setConfigs(configsData);
         // 同步更新MCP配置服务
-        mcpConfigService.reloadFromData(configsData, tools);
+        // mcpConfigService.reloadFromData(configsData, tools);
         console.log('useMCPManager: saveConfigs completed successfully');
       } else {
         const errorMessage = '保存配置数据失败';
@@ -110,7 +110,7 @@ export const useMCPManager = () => {
         console.log('useMCPManager: saveTools success, updating state');
         setTools(toolsData);
         // 同步更新MCP配置服务
-        mcpConfigService.reloadFromData(configs, toolsData);
+        // mcpConfigService.reloadFromData(configs, toolsData);
         console.log('useMCPManager: saveTools completed successfully');
       } else {
         const errorMessage = '保存工具数据失败';
@@ -432,14 +432,21 @@ export const useMCPManager = () => {
     const newConfigs = mcpConfigService.getAllConfigs();
     const newTools = mcpConfigService.getAllTools();
     console.log('useMCPManager: service data:', { newConfigs, newTools });
-    setConfigs(newConfigs);
-    setTools(newTools);
-    console.log('useMCPManager: state updated');
+    console.log('useMCPManager: current state before update:', { configs, tools });
+    
+    // 强制更新状态，使用时间戳确保每次都是新值
+    const timestamp = Date.now();
+    setConfigs([...newConfigs]);
+    setTools([...newTools]);
+    
+    console.log('useMCPManager: state update completed');
+    
     // 直接写入文件，避免触发状态更新循环
     const [configsSuccess, toolsSuccess] = await Promise.all([
       writeJsonFile(getConfigPath('mcp-configs.json'), newConfigs),
       writeJsonFile(getConfigPath('mcp-tools.json'), newTools)
     ]);
+    
     if (configsSuccess && toolsSuccess) {
       console.log('useMCPManager: reloadData completed successfully');
     } else {

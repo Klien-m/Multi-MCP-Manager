@@ -10,6 +10,13 @@ pub fn run() {
             .level(log::LevelFilter::Info)
             .build(),
         )?;
+        
+        // 在调试模式下启用开发者工具
+        #[cfg(debug_assertions)]
+        {
+          use tauri::Manager;
+          app.handle().get_webview_window("main").unwrap().open_devtools();
+        }
       };
       
       // 注册文件系统插件
