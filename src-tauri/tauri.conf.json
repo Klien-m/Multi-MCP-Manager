@@ -2,13 +2,13 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "multi-mcp-unified-manager",
   "version": "0.1.0",
-  "identifier": "com.klien.multi_mcp_manager",
+  "identifier": "com.klien.multi-mcp-manager",
   "build": {
-    "frontendDist": "../build",
-    "devUrl": "http://192.168.1.8:3000",
-    "beforeDevCommand": "pnpm dev",
-    "beforeBuildCommand": "pnpm build"
-  },
+      "frontendDist": "../dist",
+      "devUrl": "http://192.168.1.8:3000",
+      "beforeDevCommand": "pnpm dev",
+      "beforeBuildCommand": "pnpm build"
+    },
   "app": {
     "windows": [
       {
