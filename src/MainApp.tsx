@@ -57,6 +57,8 @@ export function MainApp() {
   const [isToolManagerOpen, setIsToolManagerOpen] = useState(false);
   const [isScanDialogOpen, setIsScanDialogOpen] = useState(false);
   const [isNoToolsDialogOpen, setIsNoToolsDialogOpen] = useState(false);
+  const [deletingConfig, setDeletingConfig] = useState<{ id: string; name: string } | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   // 计算属性
   const configCounts = tools.reduce((acc, tool) => {
@@ -105,9 +107,23 @@ export function MainApp() {
   };
 
   const handleDelete = (id: string) => {
+    console.log('MainApp: handleDelete called with id:', id);
     const config = configs.find(c => c.id === id);
-    if (config && confirm(`确定要删除 "${config?.name}" 吗？`)) {
-      deleteConfig(id);
+    if (config) {
+      console.log('MainApp: found config to delete:', config.name);
+      setDeletingConfig({ id: config.id, name: config.name });
+      setIsDeleteDialogOpen(true);
+    } else {
+      console.error('MainApp: config not found for id:', id);
+    }
+  };
+
+  const handleDeleteConfirm = () => {
+    if (deletingConfig) {
+      console.log('MainApp: handleDeleteConfirm called for:', deletingConfig.id);
+      deleteConfig(deletingConfig.id);
+      setIsDeleteDialogOpen(false);
+      setDeletingConfig(null);
     }
   };
 
@@ -387,6 +403,32 @@ export function MainApp() {
               setIsToolManagerOpen(true);
             }}>
               去创建工具
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* 删除确认对话框 */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>确认删除</DialogTitle>
+            <DialogDescription>
+              确定要删除配置 "{deletingConfig?.name}" 吗？此操作无法撤销。
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end space-x-2 mt-4">
+            <Button variant="outline" onClick={() => {
+              setIsDeleteDialogOpen(false);
+              setDeletingConfig(null);
+            }}>
+              取消
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={handleDeleteConfirm}
+            >
+              删除
             </Button>
           </div>
         </DialogContent>

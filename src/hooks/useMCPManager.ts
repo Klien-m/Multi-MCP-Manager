@@ -78,10 +78,11 @@ export const useMCPManager = () => {
     console.log('useMCPManager: saveConfigs called with:', { configsCount: configsData.length });
     try {
       setConfigsError(null);
-      const success = await writeJsonFile(getConfigPath('mcp-configs.json'), configsData);
+      const newConfigsData = [...configsData];
+      const success = await writeJsonFile(getConfigPath('mcp-configs.json'), newConfigsData);
       if (success) {
         console.log('useMCPManager: saveConfigs success, updating state');
-        setConfigs(configsData);
+        setConfigs(newConfigsData);
         // 同步更新MCP配置服务
         // mcpConfigService.reloadFromData(configsData, tools);
         console.log('useMCPManager: saveConfigs completed successfully');
@@ -105,10 +106,11 @@ export const useMCPManager = () => {
     console.log('useMCPManager: saveTools called with:', { toolsCount: toolsData.length });
     try {
       setToolsError(null);
-      const success = await writeJsonFile(getConfigPath('mcp-tools.json'), toolsData);
-      if (success) {
+      // 确保传入的是新数组引用，避免 React 认为没有变化
+      const newToolsData = [...toolsData];
+      const success = await writeJsonFile(getConfigPath('mcp-tools.json'), newToolsData);      if (success) {
         console.log('useMCPManager: saveTools success, updating state');
-        setTools(toolsData);
+        setTools(newToolsData);
         // 同步更新MCP配置服务
         // mcpConfigService.reloadFromData(configs, toolsData);
         console.log('useMCPManager: saveTools completed successfully');
@@ -220,14 +222,31 @@ export const useMCPManager = () => {
 
   // 删除配置
   const deleteConfig = useCallback((id: string) => {
+    console.log('useMCPManager: deleteConfig called with id:', id);
+    console.log('useMCPManager: current configs before delete:', configs.map(c => ({ id: c.id, name: c.name })));
+    
     const success = mcpConfigService.deleteConfig(id);
+    console.log('useMCPManager: mcpConfigService.deleteConfig result:', success);
+    
     if (success) {
       const newConfigs = configs.filter(config => config.id !== id);
+      console.log('useMCPManager: filtered configs after delete:', newConfigs.map(c => ({ id: c.id, name: c.name })));
+      console.log('useMCPManager: configs count changed from', configs.length, 'to', newConfigs.length);
+      
       saveConfigs(newConfigs).then(saveSuccess => {
+        console.log('useMCPManager: saveConfigs result after delete:', saveSuccess);
         if (saveSuccess) {
           toast.success('配置删除成功');
+        } else {
+          toast.error('删除配置后保存失败');
         }
+      }).catch(err => {
+        console.error('useMCPManager: saveConfigs error after delete:', err);
+        toast.error('删除配置后保存失败');
       });
+    } else {
+      console.error('useMCPManager: deleteConfig failed in service');
+      toast.error('删除配置失败');
     }
     return success;
   }, [configs, saveConfigs]);
@@ -434,8 +453,6 @@ export const useMCPManager = () => {
     console.log('useMCPManager: service data:', { newConfigs, newTools });
     console.log('useMCPManager: current state before update:', { configs, tools });
     
-    // 强制更新状态，使用时间戳确保每次都是新值
-    const timestamp = Date.now();
     setConfigs([...newConfigs]);
     setTools([...newTools]);
     
