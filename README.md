@@ -22,7 +22,7 @@
 
 - Node.js 18+
 - Rust (用于 Tauri 编译)
-- 支持的平台: Windows 10+, macOS 10.15+, Linux (glibc 2.17+)
+- 支持的平台: macOS 10.15+
 
 ## 🛠️ 安装和运行
 
@@ -47,9 +47,7 @@ pnpm tauri build
 ### 生产环境
 
 下载并安装预编译的桌面应用程序包：
-- Windows: `.exe` 安装包
 - macOS: `.dmg` 或 `.pkg` 安装包
-- Linux: `.AppImage` 或 `.deb` 安装包
 
 ## 📖 使用指南
 
@@ -89,6 +87,29 @@ pnpm tauri build
 2. 选择要扫描的工具类型
 3. 扫描完成后查看发现的配置
 4. 选择要导入的配置并转换为统一格式
+
+## ⚠️ 已知问题
+
+- [ ] 扫描配置保存后页面未自动刷新（疑难问题）
+
+## 📋 开发计划
+
+### 当前开发重点
+
+- [ ] MCP 编辑后同步到对应的工具
+- [ ] 支持自定义 AI 工具及目录扫描
+
+### 功能 roadmap
+
+- **短期目标 (1-2 个月)**
+  - [ ] 修复配置保存后页面刷新问题
+  - [ ] 完成 MCP 编辑自动同步功能
+
+  - [ ] 支持自定义 AI 工具配置
+  - [ ] 增强目录扫描功能
+
+- **长期目标 (6-12 个月)**
+  - [ ] 学习 React 和 Rust 技术栈，对整个项目进行深度优化
 
 ## 🗂️ 项目结构
 
@@ -172,8 +193,7 @@ pnpm format
 
 如有问题或建议，请通过以下方式联系：
 
-- 提交 Issue: [GitHub Issues](https://github.com/your-repo/issues)
-- 邮件: your-email@example.com
+- 提交 Issue: [GitHub Issues](https://github.com/Klien-m/Multi-MCP-Manager/issues)
 
 ---
 

@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "multi-mcp-unified-manager",
+  "productName": "multi-mcp-manager",
   "version": "0.1.0",
   "identifier": "com.klien.multi-mcp-manager",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "multi-mcp-unified-manager",
+        "title": "multi-mcp-manager",
         "width": 800,
         "height": 600,
         "resizable": true,

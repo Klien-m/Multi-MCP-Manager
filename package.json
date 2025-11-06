@@ -1,5 +1,5 @@
 {
-  "name": "multi-mcp-unified-manager",
+  "name": "multi-mcp-manager",
   "version": "0.1.0",
   "description": "A desktop application for managing MCP data across different AI programming tools",
   "main": "src-tauri/src/main.rs",
